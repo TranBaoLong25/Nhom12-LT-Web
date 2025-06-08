@@ -5,8 +5,27 @@ include_once('views/fragments/header.php');
 <link rel="stylesheet" href="./assets//css//index.css">
 
 <section class="slider">
-    <img id="slider-img" src="https://picsum.photos/1200/400?random=1" alt="Ảnh khách sạn Aura Hotel">
+    <section class="slider">
+        <div class="slideshow-container">
+            <img class="slide active" src="/Project_PHP/assets/images/slide-1.jpg" alt="Ảnh khách sạn 1">
+            <img class="slide" src="/Project_PHP/assets/images/slide-2.jpg" alt="Ảnh khách sạn 2">
+            <img class="slide" src="/Project_PHP/assets/images/slide-3.jpg" alt="Ảnh khách sạn 3">
+            <img class="slide" src="/Project_PHP/assets/images/slide-4.jpg" alt="Ảnh khách sạn 4">
+            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+        </div>
+
+        <div style="text-align:center; margin-top: 10px;">
+            <span class="dot active" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+            <span class="dot" onclick="currentSlide(3)"></span>
+            <span class="dot" onclick="currentSlide(4)"></span>
+            <span class="dot" onclick="currentSlide(5)"></span>
+            </div>
+    </section>
 </section>
+
+<script src="/Project_PHP//assets//js//slide.js"></script>
 
 <section class="welcome">
     <div class="welcome-content">
@@ -22,32 +41,27 @@ include_once('views/fragments/header.php');
         <h2 class="section-title">Khám Phá Sự Khác Biệt Tại Aura Hotel</h2>
         <div class="highlights-grid">
             <div class="highlight-item">
-                <img src="https://picsum.photos/400/250?random=10" alt="Phòng Suite Đẳng Cấp">
+                <img src="./assets//images//slide-3.jpg" alt="Phòng Suite Đẳng Cấp">
                 <h3>Phòng & Suite Đẳng Cấp</h3>
                 <p>Thư giãn trong không gian riêng tư được thiết kế tinh tế, với tiện nghi hiện đại, giường King-size êm ái và tầm nhìn bao quát thành phố.</p>
                 <a href="/Project_PHP/views/bookedRoom.php" class="btn btn-primary <?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Xem Chi Tiết Phòng</a>
             </div>
 
             <div class="highlight-item">
-                <img src="https://picsum.photos/400/250?random=11" alt="Ẩm Thực Tinh Hoa">
+                <img src="./assets//images//Food.jpg" alt="Ẩm Thực Tinh Hoa">
                 <h3>Ẩm Thực Tinh Hoa</h3>
-                <p>Khám phá hành trình vị giác đỉnh cao tại nhà hàng fine-dining sang trọng của chúng tôi, nơi hội tụ tinh hoa ẩm thực Á-Âu.</p>
+<p>Khám phá hành trình vị giác đỉnh cao tại nhà hàng fine-dining sang trọng của chúng tôi, nơi hội tụ tinh hoa ẩm thực Á-Âu.</p>
                 <a href="/dining" class="btn btn-primary">Xem Thực Đơn</a>
             </div>
 
             <div class="highlight-item">
-                <img src="https://picsum.photos/400/250?random=12" alt="Tiện Ích & Dịch Vụ">
+                <img src="./assets//images//Service.jpg" alt="Tiện Ích & Dịch Vụ">
                 <h3>Tiện Ích & Dịch Vụ Độc Quyền</h3>
                 <p>Tận hưởng sự thư thái tại Aura Spa, đắm mình trong hồ bơi vô cực trên tầng thượng, hoặc rèn luyện tại phòng gym hiện đại.</p>
                 <a href="/facilities" class="btn btn-primary">Khám Phá Tiện Ích</a>
             </div>
 
-            <div class="highlight-item">
-                <img src="https://picsum.photos/400/250?random=13" alt="Vị Trí Đắc Địa">
-                <h3>Vị Trí Đắc Địa</h3>
-                <p>Nằm ngay trung tâm thành phố, dễ dàng di chuyển đến các khu mua sắm sầm uất, danh lam thắng cảnh và khu vui chơi giải trí.</p>
-                <a href="/location" class="btn btn-primary">Xem Vị Trí</a>
-            </div>
+            
         </div>
     </section>
 
