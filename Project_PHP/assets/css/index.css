@@ -1,86 +1,433 @@
-// assets/js/slider.js
-
-let slideIndex = 0; // Bắt đầu từ ảnh đầu tiên (index 0)
-let slides = []; // Mảng chứa tất cả các ảnh slide
-let dots = []; // Mảng chứa tất cả các chấm tròn
-let timeoutId; // Biến để lưu trữ ID của setTimeout
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    slides = document.querySelectorAll('.slideshow-container .slide');
-    dots = document.querySelectorAll('.dot');
-
-    if (slides.length > 0) {
-        showSlides(); // Gọi hàm hiển thị slide khi DOM đã tải xong
-    }
-});
-
-function showSlides() {
-    // Xóa bất kỳ timeout hiện có nào để tránh chạy đúp
-    clearTimeout(timeoutId);
-
-    // Ẩn tất cả các slide và bỏ active class của chấm
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove('active');
-    }
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].classList.remove('active');
-    }
-
-    // Tăng slideIndex để chuyển sang ảnh tiếp theo
-    slideIndex++;
-    if (slideIndex > slides.length) {
-        slideIndex = 1; // Quay lại ảnh đầu tiên nếu đã hết ảnh
-    }
-
-    // Hiển thị slide hiện tại và active chấm tương ứng
-    slides[slideIndex - 1].classList.add('active');
-    dots[slideIndex - 1].classList.add('active');
-
-    // Tự động chuyển slide sau 5 giây (5000 milliseconds)
-    timeoutId = setTimeout(showSlides, 5000);
+/* --- GLOBAL STYLES --- */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6; /* Nền nhẹ nhàng cho toàn bộ trang */
+    color: #333;
+    line-height: 1.6;
 }
 
-// Chức năng chuyển slide bằng nút Next/Prev
-function plusSlides(n) {
-    clearTimeout(timeoutId); // Xóa timer hiện tại khi người dùng tương tác
-
-    slideIndex += n; // Di chuyển tới slide trước/sau
-
-    if (slideIndex > slides.length) {
-        slideIndex = 1;
-    }
-    if (slideIndex < 1) {
-        slideIndex = slides.length;
-    }
-    
-    // Cập nhật hiển thị slide và chấm
-    updateSlideDisplay();
-
-    // Sau khi người dùng click, tiếp tục tự động chuyển slide sau 5 giây
-    timeoutId = setTimeout(showSlides, 5000);
+.container {
+    width: 100%;
+    max-width: 1200px; /* Chiều rộng tối đa cho nội dung chính */
+    margin: 0 auto; /* Căn giữa container */
+    padding: 0 20px; /* Khoảng đệm hai bên để tránh nội dung dính sát mép */
 }
 
-// Chức năng chuyển slide bằng cách click vào chấm tròn
-function currentSlide(n) {
-    clearTimeout(timeoutId); // Xóa timer hiện tại
-
-    slideIndex = n; // Đặt slideIndex theo chấm được click
-
-    // Cập nhật hiển thị slide và chấm
-    updateSlideDisplay();
-
-    // Sau khi người dùng click, tiếp tục tự động chuyển slide sau 5 giây
-    timeoutId = setTimeout(showSlides, 5000);
+/* Tiêu đề chung cho các section bên trong container */
+.section-title {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    color: #4A4A4A;
+    margin-bottom: 40px; /* Khoảng cách dưới tiêu đề */
+    margin-top: 60px; /* Khoảng cách trên tiêu đề */
+    position: relative;
+    padding-bottom: 10px;
 }
 
-// Hàm hỗ trợ để cập nhật hiển thị slide và chấm
-function updateSlideDisplay() {
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove('active');
+.section-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: #8C7851; /* Màu vàng đồng */
+    border-radius: 5px;
+}
+
+
+/* --- MAIN HEADER --- */
+.main-header {
+    background-color: #ffffff; /* Nền trắng cho header */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Bóng đổ nhẹ nhàng */
+    padding: 15px 0; /* Khoảng đệm trên dưới */
+    position: sticky; /* Giúp header cố định khi cuộn */
+    top: 0;
+    z-index: 1000; /* Đảm bảo header luôn ở trên cùng */
+}
+
+.header-content {
+    display: flex; /* Sử dụng Flexbox để căn chỉnh logo và menu */
+    justify-content: space-between; /* Đẩy logo và menu về hai phía */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+/* --- LOGO --- */
+.logo {
+    font-size: 30px; /* Kích thước chữ logo */
+    font-weight: 800; /* Độ đậm cho chữ */
+    color: #2c8fe5; /* Màu xanh dương hiện đại cho logo */
+    text-decoration: none; /* Bỏ gạch chân */
+    text-transform: uppercase; /* Viết hoa toàn bộ */
+    letter-spacing: 1.5px; /* Khoảng cách giữa các chữ cái */
+    transition: color 0.3s ease;
+}
+
+.logo:hover {
+    color: #1a71c2; /* Màu đậm hơn khi hover */
+}
+
+/* --- MAIN NAVIGATION MENU --- */
+.main-nav .nav-links {
+    list-style: none; /* Bỏ dấu chấm mặc định của list */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Các mục menu nằm ngang hàng */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.main-nav .nav-links li {
+    margin-left: 25px; /* Khoảng cách giữa các mục menu */
+}
+
+.main-nav .nav-links a {
+    color: #555; /* Màu chữ mặc định */
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600; /* Độ đậm vừa phải */
+    padding: 8px 0;
+    transition: color 0.3s ease;
+}
+
+.main-nav .nav-links a:hover,
+.main-nav .nav-links a.active { /* Style cho link đang active */
+    color: #2c8fe5; /* Màu nổi bật khi hover hoặc active */
+}
+
+/* --- AUTHENTICATION LINKS (LOGIN/REGISTER/PROFILE/LOGOUT) --- */
+.nav-links .logout-form {
+    display: inline;
+}
+
+.nav-links .logout-button {
+    padding: 8px 15px;
+    margin-left: 10px;
+    text-decoration: none;
+    color: white;
+    border: 1px solid #dc3545;
+    border-radius: 5px;
+    background-color: #dc3545;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.nav-links .logout-button:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+
+.nav-links a[href="/login"],
+.nav-links a[href="/register"],
+.nav-links a[href="/profile"] {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    margin-left: 10px;
+    font-weight: normal;
+}
+
+.nav-links a[href="/login"]:hover,
+.nav-links a[href="/register"]:hover,
+.nav-links a[href="/profile"]:hover {
+    background-color: #e0e0e0;
+    border-color: #a0a0a0;
+    color: #2c8fe5;
+}
+
+
+/* --- SLIDER SECTION (Full Width với Viền) --- */
+.slider {
+    width: 100%;
+    height: 450px;
+    overflow: hidden;
+    margin-top: 0;
+    position: relative;
+    border: 1px solid #e0e0e0; /* Viền mỏng, màu xám nhạt tinh tế */
+    box-sizing: border-box;
+}
+
+.slider img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* --- WELCOME SECTION (Full Width với Viền) --- */
+.welcome {
+    width: 100%;
+    background-color: #ffffff;
+    padding: 60px 20px;
+    margin: 30px 0;
+    text-align: center;
+    border: 1px solid #d0d0d0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Đảm bảo nội dung (h2, h3) không bị quá rộng */
+.welcome .welcome-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.welcome h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    color: #333;
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.welcome h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    color: #8C7851;
+    margin-top: 0;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: capitalize;
+}
+
+.welcome p { /* Style cho đoạn mô tả thêm trong welcome section */
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    color: #666;
+    max-width: 700px;
+    margin: 20px auto 0 auto;
+    line-height: 1.8;
+}
+
+
+/* --- HIGHLIGHTS / UNIQUE SELLING POINTS SECTION --- */
+.highlights-section {
+    padding: 40px 0;
+    background-color: #fcfcfc; /* Nền nhẹ nhàng cho phần này */
+}
+
+.highlights-grid {
+    display: grid; /* Sử dụng CSS Grid để tạo bố cục lưới */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 4 cột trên màn hình lớn, tự động điều chỉnh */
+    gap: 30px; /* Khoảng cách giữa các item */
+    margin-top: 30px;
+}
+
+.highlight-item {
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden; /* Đảm bảo ảnh bo tròn theo khung */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    padding-bottom: 20px; /* Khoảng đệm dưới nội dung */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hiệu ứng hover */
+}
+
+.highlight-item:hover {
+    transform: translateY(-8px); /* Nâng nhẹ khi hover */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Bóng đổ đậm hơn khi hover */
+}
+
+.highlight-item img {
+    width: 100%;
+    height: 200px; /* Chiều cao cố định cho ảnh */
+    object-fit: cover; /* Đảm bảo ảnh lấp đầy khung */
+    border-top-left-radius: 10px; /* Bo góc trên của ảnh */
+    border-top-right-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.highlight-item h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    padding: 0 15px; /* Đệm hai bên cho tiêu đề */
+}
+
+.highlight-item p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    color: #666;
+    padding: 0 20px; /* Đệm hai bên cho đoạn văn */
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.btn { /* Style chung cho các nút */
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #2c8fe5; /* Màu xanh của logo */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #1a71c2; /* Màu đậm hơn khi hover */
+}
+
+/* --- CUSTOMER TESTIMONIALS / REVIEWS SECTION --- */
+.testimonials-section {
+    padding: 60px 0;
+    background-color: #f9f9f9; /* Nền khác một chút để phân biệt */
+    margin-top: 60px; /* Khoảng cách với phần trước */
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 3 cột trên màn hình lớn */
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.testimonial-item {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* Ảnh đại diện tròn */
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #8C7851; /* Viền vàng đồng cho avatar */
+}
+
+.testimonial-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    color: #444;
+    line-height: 1.7;
+    font-style: italic; /* In nghiêng để nhấn mạnh đây là trích dẫn */
+    margin-bottom: 15px;
+}
+
+.testimonial-author {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+
+/* --- FOOTER --- */
+.footer {
+    text-align: center;
+    background-color: #333;
+    color: white;
+    padding: 25px 0;
+    margin-top: 80px; /* Tăng khoảng cách từ phần testimonials */
+    font-size: 14px;
+}
+
+.footer p {
+    margin: 5px 0;
+    opacity: 0.9;
+}
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 992px) { /* Tablet size */
+    .highlights-grid, .testimonials-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
     }
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].classList.remove('active');
+
+    .section-title {
+        font-size: 32px;
+        margin-bottom: 30px;
+        margin-top: 50px;
     }
-    slides[slideIndex - 1].classList.add('active');
-    dots[slideIndex - 1].classList.add('active');
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .logo {
+        margin-bottom: 15px;
+        font-size: 26px;
+    }
+
+    .main-nav .nav-links {
+        flex-direction: column;
+    }
+
+    .main-nav .nav-links li {
+        margin: 10px 0;
+    }
+
+    .main-nav .nav-links a,
+    .nav-links .logout-button,
+    .nav-links a[href="/login"],
+    .nav-links a[href="/register"],
+    .nav-links a[href="/profile"] {
+        width: 100%;
+        margin: 5px 0;
+        text-align: center;
+    }
+
+    .slider {
+        height: 300px;
+    }
+
+    .welcome {
+        padding: 40px 15px;
+        margin: 20px 0;
+    }
+
+    .welcome h2 {
+        font-size: 38px;
+        letter-spacing: 1px;
+    }
+
+    .welcome h3 {
+        font-size: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .welcome p {
+        font-size: 16px;
+    }
+
+    .highlights-grid, .testimonials-grid {
+        grid-template-columns: 1fr; /* 1 cột trên mobile */
+        gap: 25px;
+    }
+
+    .section-title {
+        font-size: 28px;
+        margin-top: 40px;
+        margin-bottom: 25px;
+    }
+
+    .highlight-item, .testimonial-item {
+        padding: 25px;
+    }
 }
