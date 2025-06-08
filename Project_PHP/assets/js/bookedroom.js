@@ -1,38 +1,38 @@
-
-  <script>
-    function openBookingForm(roomName, price) {
-      document.getElementById('selected-room').innerText = `${roomName} - ${price.toLocaleString()}đ / đêm`;
-      document.getElementById('booking-form').style.display = 'flex';
-    }
-
-    function closeBookingForm() {
-      document.getElementById('booking-form').style.display = 'none';
-    }
-
-    function filterRooms() {
-      const type = document.getElementById('room-type').value;
-      const priceFilter = document.getElementById('price-filter').value;
-
-      const rooms = document.querySelectorAll('.room');
-
-      rooms.forEach(room => {
-        const roomType = room.getAttribute('data-type');
-        const roomPrice = parseInt(room.getAttribute('data-price'));
-
-        const matchType = !type || roomType === type;
-        let matchPrice = true;
-
-        if (priceFilter && priceFilter !== 'vip') {
-          matchPrice = roomPrice == parseInt(priceFilter);
-        } else if (priceFilter === 'vip') {
-          matchPrice = roomType === 'vip';
+function openBookingForm(roomName, roomPrice) {
+            document.getElementById('selected-room').innerText = `Bạn đã chọn: ${roomName} - Giá: ${roomPrice.toLocaleString('vi-VN')}đ / đêm`;
+            document.getElementById('booking-room-name').value = roomName;
+            document.getElementById('booking-room-price').value = roomPrice;
+            document.getElementById('booking-form').style.display = 'flex'; // Use flex to center
         }
 
-        if (matchType && matchPrice) {
-          room.style.display = 'block';
-        } else {
-          room.style.display = 'none';
+        function closeBookingForm() {
+            document.getElementById('booking-form').style.display = 'none';
         }
-      });
-    }
-  </script>
+
+        function filterRooms() {
+            const roomType = document.getElementById('room-type').value;
+            const priceFilter = document.getElementById('price-filter').value;
+            const roomList = document.getElementById('room-list');
+            const rooms = roomList.getElementsByClassName('room');
+
+            for (let i = 0; i < rooms.length; i++) {
+                const room = rooms[i];
+                const roomDataType = room.getAttribute('data-type');
+                const roomDataPrice = parseInt(room.getAttribute('data-price'));
+
+                let typeMatch = (roomType === '' || roomDataType === roomType);
+                let priceMatch = true; // Assume true if no price filter
+
+                if (priceFilter !== '') {
+                    const filterPrice = parseInt(priceFilter);
+                    priceMatch = (roomDataPrice <= filterPrice); // Example: show rooms cheaper than or equal to filter price
+                    // You might want to adjust this logic for price ranges
+                }
+
+                if (typeMatch && priceMatch) {
+                    room.style.display = ''; // Show the room
+                } else {
+                    room.style.display = 'none'; // Hide the room
+                }
+            }
+        }

@@ -1,4 +1,3 @@
-/* --- GLOBAL STYLES --- */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -38,7 +37,6 @@ body {
     background-color: #8C7851; /* Màu vàng đồng */
     border-radius: 5px;
 }
-
 
 /* --- MAIN HEADER --- */
 .main-header {
@@ -142,25 +140,96 @@ body {
     color: #2c8fe5;
 }
 
-
 /* --- SLIDER SECTION (Full Width với Viền) --- */
 .slider {
-    width: 100%;
-    height: 450px;
-    overflow: hidden;
-    margin-top: 0;
-    position: relative;
+    width: 100%; /* Giữ full width */
+    height: 450px; /* Giữ chiều cao cố định */
+    overflow: hidden; /* Quan trọng để ẩn phần ảnh thừa */
+    margin-top: 0; /* Đảm bảo không có khoảng trống trên cùng */
+    position: relative; /* Quan trọng để định vị các phần tử con */
     border: 1px solid #e0e0e0; /* Viền mỏng, màu xám nhạt tinh tế */
-    box-sizing: border-box;
+    box-sizing: border-box; /* Đảm bảo padding và border không làm tăng kích thước tổng thể */
+    /* Loại bỏ max-width nếu bạn muốn nó luôn full width của màn hình */
+    /* box-shadow: none; (Nếu bạn muốn bỏ bóng đổ) */
+    /* border-radius: 0; (Nếu bạn muốn bỏ bo góc) */
 }
 
-.slider img {
+/* Container cho các ảnh slide bên trong */
+.slideshow-container {
+    position: relative;
+    width: 100%;
+    height: 100%; /* Đảm bảo slideshow-container cũng chiếm toàn bộ chiều cao của .slider */
+    overflow: hidden; /* Quan trọng để ảnh không tràn ra khỏi container */
+}
+
+.slideshow-container img.slide {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: 0;
-    box-shadow: none;
+    object-fit: cover; /* Đảm bảo ảnh vừa vặn và không bị méo */
+    display: block; /* Loại bỏ khoảng trống dưới ảnh */
+    position: absolute; /* Xếp chồng các ảnh lên nhau */
+    top: 0;
+    left: 0;
+    opacity: 0; /* Mặc định ẩn tất cả ảnh */
+    transition: opacity 1.5s ease-in-out; /* Hiệu ứng mờ dần/hiện ra khi chuyển ảnh */
+    border-radius: 0; /* Đảm bảo không có bo góc cho ảnh riêng lẻ */
+    box-shadow: none; /* Đảm bảo không có bóng đổ cho ảnh riêng lẻ */
+    transform: translateZ(0);
+}
+
+.slideshow-container img.slide.active {
+    opacity: 1; /* Hiển thị ảnh đang active */
+}
+
+/* Nút Previous và Next */
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); /* Căn giữa dọc chính xác */
+    width: auto;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 25px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0; /* Nút prev có bo góc bên phải, next bên trái */
+    user-select: none;
+    background-color: rgba(0,0,0,0.5); /* Nền mờ cho nút */
+    z-index: 10; /* Đảm bảo nút nằm trên ảnh */
+}
+
+.next {
+    right: 0;
+    border-radius: 3px 0 0 3px; /* Nút next có bo góc bên trái */
+}
+
+.prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+/* Chấm tròn indicators */
+.dot-container {
+    text-align: center;
+    position: absolute; /* Đặt dots cố định dưới slider */
+    bottom: 10px; /* Cách đáy 10px */
+    width: 100%;
+    z-index: 10; /* Đảm bảo dots nằm trên ảnh */
+}
+
+.dot {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    margin: 0 5px; /* Tăng khoảng cách giữa các chấm */
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+}
+
+.dot.active, .dot:hover {
+    background-color: #717171;
 }
 
 /* --- WELCOME SECTION (Full Width với Viền) --- */
@@ -210,7 +279,6 @@ body {
     margin: 20px auto 0 auto;
     line-height: 1.8;
 }
-
 
 /* --- HIGHLIGHTS / UNIQUE SELLING POINTS SECTION --- */
 .highlights-section {
@@ -356,7 +424,7 @@ body {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
     }
-
+    
     .section-title {
         font-size: 32px;
         margin-bottom: 30px;
@@ -364,7 +432,7 @@ body {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Mobile size */
     .header-content {
         flex-direction: column;
         text-align: center;
