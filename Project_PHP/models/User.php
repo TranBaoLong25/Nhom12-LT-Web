@@ -4,16 +4,14 @@
         private $username;
         private $password;
         private $role;
-        private $conn;
         public static function createEmptyUser() {
-        return new User(null, null, null, null, null);
+        return new User(null, null, null, null);
         }
-        public function __construct($id, $username, $password, $role, $db){
+        public function __construct($id, $username, $password, $role){
             $this->id = $id;
             $this->username = $username;
             $this->password = $password;
             $this->role = $role;
-            $this->conn = $db;
         }
         public function getId(){
             return $this->id;
