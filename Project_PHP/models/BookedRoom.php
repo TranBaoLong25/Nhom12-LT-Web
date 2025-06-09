@@ -1,33 +1,37 @@
 <?php
-// your_project/models/Room.php
-
-class Room {
-    public $id;
-    public $name;
-    public $type;
-    public $price;
-    public $description;
-    public $capacity;
-    public $image;
-
-    public function __construct($data) {
-        $this->id = $data['id'] ?? null;
-        $this->name = $data['name'] ?? null;
-        $this->type = $data['type'] ?? null;
-        $this->price = $data['price'] ?? null;
-        $this->description = $data['description'] ?? null;
-        $this->capacity = $data['capacity'] ?? null;
-        $this->image = $data['image'] ?? null;
+    class BookedRoom{
+        private $id;
+        private $guest_name;
+        private $guest_phone;
+        private $check_in_date;
+        private $check_out_date;
+        private $user_id;
+        private $homestay_id;
+        public static function createEmptyBookedRoom(){
+            return new BookedRoom(null, null, null, null, null, null, null);
+        }
+        public function __construct($id, $guest_name, $guest_phone, $check_in_date, $check_out_date, $user_id, $homestay_id){
+            $this->id = $id;
+            $this->guest_name = $guest_name;
+            $this->guest_phone = $guest_phone;
+            $this->check_in_date = $check_in_date;
+            $this->check_out_date = $check_out_date;
+            $this->user_id = $user_id;
+            $this->homestay_id = $homestay_id;
+        }
+        public function getId(){ return $this->id;}
+        public function getGuestName(){ return $this->guest_name;}
+        public function getGuestPhone(){return $this->guest_phone;}
+        public function getCheckIn(){ return $this->check_in_date;}
+        public function getCheckOut(){ return $this->check_out_date;}
+        public function getUserId(){return $this->user_id;}
+        public function getHomeStayId(){return $this->homestay_id;}
+        public function setId($id){$this->id = $id;}
+        public function setGuestName($guest_name){ $this->guest_name = $guest_name;}
+        public function setGuestPhone($guest_phone){$this->guest_phone = $guest_phone;}
+        public function setCheckIn($check_in_date){$this->check_in_date = $check_in_date;}
+        public function setCheckOut($check_out_date){$this->check_out_date = $check_out_date;}
+        public function setUserId($user_id){$this->user_id = $user_id;}
+        public function setHomeStayId($homestay_id){$this->homestay_id = $homestay_id;}
     }
-
-    // Các phương thức getter (tùy chọn, có thể truy cập public properties trực tiếp)
-    public function getId() { return $this->id; }
-    public function getName() { return $this->name; }
-    public function getType() { return $this->type; }
-    public function getPrice() { return $this->price; }
-    public function getDescription() { return $this->description; }
-    public function getCapacity() { return $this->capacity; }
-    public function getImage() { return $this->image; }
-
-    // Có thể thêm các phương thức xử lý logic liên quan đến Room nếu cần
-}
+?>

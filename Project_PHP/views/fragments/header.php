@@ -10,8 +10,7 @@ if (session_status() == PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura Hotel</title>
-    <link rel="stylesheet" href="/Project_PHP/assets/css/index.css">
-    </head>
+    <head>
 <body>
     <header class="main-header">
         <div class="header-content container">
@@ -30,8 +29,8 @@ if (session_status() == PHP_SESSION_NONE) {
                             </form>
                         </li>
                     <?php else: ?>
-                        <li><a href="/Project_PHP/login.php">Đăng Nhập</a></li>
-                        <li><a href="/Project_PHP/register.php">Đăng Ký</a></li>
+                         <li><a href="/Project_PHP//views//login.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'login.php') ? 'active' : '' ?>">Đăng Nhập</a></li>
+                        <li><a href="/Project_PHP//views//register.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'register.php') ? 'active' : '' ?>">Đăng Ký</a></li>
                     <?php endif; ?>
                 </ul>
             </nav>
@@ -54,4 +53,3 @@ if (session_status() == PHP_SESSION_NONE) {
     }
 </script>
 
-    

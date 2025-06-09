@@ -1,5 +1,5 @@
 <?php
-// Include phần header của trang
+
 include_once('views/fragments/header.php');
 ?>
 <link rel="stylesheet" href="./assets//css//index.css">
