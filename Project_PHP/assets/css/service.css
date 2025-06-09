@@ -1,0 +1,289 @@
+/* CSS chung cho danh sách và form */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    position: relative;
+}
+
+h1::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: #007bff;
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+.service-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.service {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.service:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.service img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.service h3 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+.service p {
+    color: #666;
+    font-size: 1em;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.service p:last-of-type { /* Cho giá */
+    font-weight: bold;
+    color: #007bff;
+    font-size: 1.1em;
+    margin-top: auto; /* Đẩy giá xuống cuối */
+}
+
+.service button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.05em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 15px;
+    width: 100%; /* Nút chiếm toàn bộ chiều rộng */
+}
+
+.service button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Booking Form Modal */
+.booking-form {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.booking-form.show {
+    display: flex;
+    opacity: 1;
+}
+
+.form-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 550px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    position: relative;
+    animation-name: animatetop;
+    animation-duration: 0.5s;
+}
+
+.form-content h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+    font-size: 2em;
+}
+
+.form-content p#selected-service {
+    text-align: center;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.form-content form label {
+display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+    font-size: 1em;
+}
+
+.form-content form input[type="text"],
+.form-content form input[type="tel"],
+.form-content form input[type="date"],
+.form-content form input[type="number"] {
+    width: calc(100% - 22px); /* Kích thước phù hợp với padding */
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+.form-content form button {
+    background-color: #28a745; /* Green for submit */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-right: 15px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    min-width: 120px;
+}
+
+.form-content form button[type="button"] { /* Cancel button */
+    background-color: #dc3545; /* Red for cancel */
+}
+.form-content form button[type="button"]:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.form-content form button:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* Modal thông báo chung (Success/Error) */
+.success-modal, .error-modal {
+    display: none;
+    position: fixed;
+    z-index: 1001; /* Đặt cao hơn booking-form */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.success-modal.show, .error-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.success-content, .error-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    animation-name: animatetop;
+    animation-duration: 0.5s;
+    border-radius: 12px;
+    text-align: center;
+    position: relative; /* Để close-btn position absolute */
+}
+
+.success-content h2 {
+    color: #28a745;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+.error-content h2 {
+    color: #dc3545;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.close-btn {
+    color: #aaa;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #333;
+    text-decoration: none;
+}
+
+.booking-details-summary {
+    background-color: #e6ffe6; /* Light green for success */
+    border-left: 5px solid #28a745;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    text-align: left;
+}
+.error-details {
+    background-color: #ffe6e6; /* Light red for error */
+    border-left: 5px solid #dc3545;
+}
+
+.booking-details-summary p {
+    margin-bottom: 8px;
+    color: #444;
+}
+.booking-details-summary p strong {
+    color: #111;
+}
+
+.ok-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
