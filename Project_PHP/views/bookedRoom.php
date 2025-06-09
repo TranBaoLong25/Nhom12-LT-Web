@@ -1,6 +1,5 @@
 <?php
-// Include phần header của trang. File này đã chứa <!DOCTYPE html>, <html>, <head>, <body>
-// Đảm bảo header.php không có thẻ <title> hoặc <link rel="stylesheet"> riêng của bookedroom.
+
 include_once('./fragments/header.php');
 
 $rooms = [
@@ -88,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <link rel="stylesheet" href="/Project_PHP/assets/css/bookedroom.css">
 <link rel="stylesheet" href="/Project_PHP/assets/css/index.css">
+<link rel="stylesheet" href="/Project_PHP/assets/css/header.css">
 
 <div class="container">
     <h1>Danh sách phòng</h1>
@@ -255,6 +255,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </script>
 
 <?php
-// Bao gồm footer để đóng các thẻ body và html
+
 include_once('./fragments/footer.php');
 ?>

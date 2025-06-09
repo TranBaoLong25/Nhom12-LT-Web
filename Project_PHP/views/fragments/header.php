@@ -1,5 +1,5 @@
 <?php
-// Bắt đầu session nếu chưa có. Rất quan trọng để nó ở đầu file PHP.
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -18,10 +18,10 @@ if (session_status() == PHP_SESSION_NONE) {
             <a href="/Project_PHP/index.php" class="logo">Aura Hotel</a>
             <nav class="main-nav">
                 <ul class="nav-links">
-                    <li><a href="/Project_PHP/index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Trang Chủ</a></li>
-                    <li><a href="/Project_PHP/views/bookedRoom.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Đặt Phòng</a></li>
-                    <li><a href="/Project_PHP/services.php">Dịch Vụ</a></li>
-                    <li><a href="/Project_PHP/support.php">Hỗ Trợ</a></li>
+<li><a href="/Project_PHP/index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Trang Chủ</a></li>
+<li><a href="/Project_PHP/views/bookedRoom.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Đặt Phòng</a></li>
+<li><a href="/Project_PHP/views//services.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'services.php' || basename($_SERVER['PHP_SELF']) == 'Services.php') ? 'active' : '' ?>">Dịch Vụ</a></li>
+<li><a href="/Project_PHP/views/support.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'support.php' || basename($_SERVER['PHP_SELF']) == 'Support.php') ? 'active' : '' ?>">Hỗ Trợ</a></li>
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li><a href="/Project_PHP/profile.php">Trang Cá Nhân</a></li>
                         <li>
