@@ -1,0 +1,181 @@
+/* support.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f9fc;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.page-title {
+    text-align: center;
+    color: #1f4e79;
+    font-size: 2.4rem;
+    margin-bottom: 30px;
+}
+
+.support-section {
+    margin-bottom: 40px;
+}
+
+.intro-section p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-section h2,
+.contact-form-section h2 {
+    color: #1f4e79;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.faq-item {
+    background-color: #ffffff;
+    border-left: 5px solid #1f4e79;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: 0.3s ease;
+}
+
+.faq-item:hover {
+    transform: translateY(-5px);
+}
+
+.faq-item h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #1f4e79;
+}
+
+.faq-item p {
+    margin: 10px 0 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.contact-form {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    transition: border 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #1f4e79;
+    outline: none;
+}
+
+.submit-button {
+    background-color: #1f4e79;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #163d61;
+}
+
+/* Form feedback success */
+.form-feedback-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.success-message {
+    background-color: #e6f7ec;
+    border: 1px solid #6ac38f;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.success-message h3 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+.success-message p {
+    margin: 8px 0;
+    font-size: 1rem;
+}
+
+/* Icons */
+.icon {
+    margin-right: 8px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.8rem;
+    }
+
+    .contact-form {
+        padding: 20px;
+    }
+
+    .faq-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* Link styling - nổi bật hơn, không gạch chân */
+a {
+    font-weight: bold;
+    color: #e11010; /* Màu xanh chủ đạo */
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+a:hover {
+    color: #9f0202;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2); /* Tạo hiệu ứng nổi nhẹ */
+    text-decoration: none;
+}

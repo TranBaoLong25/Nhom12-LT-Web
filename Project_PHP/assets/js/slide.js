@@ -1,40 +1,30 @@
 // assets/js/slider.js
 
-let slideIndex = 0; // Bắt đầu từ ảnh đầu tiên (index 0)
-let slides = []; // Mảng chứa tất cả các ảnh slide
-let dots = []; // Mảng chứa tất cả các chấm tròn
-let timeoutId; // Biến để lưu trữ ID của setTimeout
+let slideIndex = 1; // Bắt đầu từ slide đầu tiên (index 1 cho người dùng, sẽ chuyển thành 0 khi truy cập mảng)
+let slides = [];    // Mảng chứa tất cả các ảnh slide
+let dots = [];      // Mảng chứa tất cả các chấm tròn
+let timeoutId;      // Biến để lưu trữ ID của setTimeout
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    slides = document.querySelectorAll('.slideshow-container .slide');
-    dots = document.querySelectorAll('.dot');
+    slides = document.querySelectorAll('.slideshow-container .slide'); // Lấy tất cả các slide
+    dots = document.querySelectorAll('.dot'); // Lấy tất cả các chấm tròn
 
     if (slides.length > 0) {
-        showSlides(); // Gọi hàm hiển thị slide khi DOM đã tải xong
+        // Khởi tạo hiển thị slide đầu tiên và bắt đầu tự động chuyển slide
+        updateSlideDisplay(); // Hiển thị slide ban đầu
+        timeoutId = setTimeout(showSlides, 5000); // Bắt đầu tự động chuyển slide
     }
 });
 
 function showSlides() {
-    // Xóa bất kỳ timeout hiện có nào để tránh chạy đúp
-    clearTimeout(timeoutId);
-
-    // Ẩn tất cả các slide và bỏ active class của chấm
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove('active');
-    }
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].classList.remove('active');
-    }
-
     // Tăng slideIndex để chuyển sang ảnh tiếp theo
     slideIndex++;
     if (slideIndex > slides.length) {
         slideIndex = 1; // Quay lại ảnh đầu tiên nếu đã hết ảnh
     }
 
-    // Hiển thị slide hiện tại và active chấm tương ứng
-    slides[slideIndex - 1].classList.add('active');
-    dots[slideIndex - 1].classList.add('active');
+    // Cập nhật hiển thị slide và chấm
+    updateSlideDisplay();
 
     // Tự động chuyển slide sau 5 giây (5000 milliseconds)
     timeoutId = setTimeout(showSlides, 5000);
@@ -47,10 +37,10 @@ function plusSlides(n) {
     slideIndex += n; // Di chuyển tới slide trước/sau
 
     if (slideIndex > slides.length) {
-        slideIndex = 1;
+        slideIndex = 1; // Vòng lại slide đầu tiên nếu vượt quá giới hạn
     }
     if (slideIndex < 1) {
-        slideIndex = slides.length;
+        slideIndex = slides.length; // Vòng lại slide cuối cùng nếu về dưới giới hạn
     }
     
     // Cập nhật hiển thị slide và chấm
@@ -75,12 +65,15 @@ function currentSlide(n) {
 
 // Hàm hỗ trợ để cập nhật hiển thị slide và chấm
 function updateSlideDisplay() {
+    // Ẩn tất cả các slide và bỏ active class của chấm
     for (let i = 0; i < slides.length; i++) {
         slides[i].classList.remove('active');
     }
     for (let i = 0; i < dots.length; i++) {
         dots[i].classList.remove('active');
     }
-    slides[slideIndex - 1].classList.add('active');
-    dots[slideIndex - 1].classList.add('active');
+
+    // Hiển thị slide hiện tại và active chấm tương ứng
+    slides[slideIndex - 1].classList.add('active'); // slideIndex là 1-based, mảng là 0-based
+    dots[slideIndex - 1].classList.add('active'); // slideIndex là 1-based, mảng là 0-based
 }

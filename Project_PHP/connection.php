@@ -2,7 +2,7 @@
 $host = "localhost";
 $dbname = "homestay_db"; 
 $username = "root";
-$password = "08102005a"; // nếu có password thì điền vào
+$password = "09042005"; // nếu có password thì điền vào
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);

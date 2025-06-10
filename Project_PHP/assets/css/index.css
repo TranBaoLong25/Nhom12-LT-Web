@@ -1,86 +1,246 @@
-// assets/js/slider.js
-
-let slideIndex = 0; // Bắt đầu từ ảnh đầu tiên (index 0)
-let slides = []; // Mảng chứa tất cả các ảnh slide
-let dots = []; // Mảng chứa tất cả các chấm tròn
-let timeoutId; // Biến để lưu trữ ID của setTimeout
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    slides = document.querySelectorAll('.slideshow-container .slide');
-    dots = document.querySelectorAll('.dot');
-
-    if (slides.length > 0) {
-        showSlides(); // Gọi hàm hiển thị slide khi DOM đã tải xong
-    }
-});
-
-function showSlides() {
-    // Xóa bất kỳ timeout hiện có nào để tránh chạy đúp
-    clearTimeout(timeoutId);
-
-    // Ẩn tất cả các slide và bỏ active class của chấm
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove('active');
-    }
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].classList.remove('active');
-    }
-
-    // Tăng slideIndex để chuyển sang ảnh tiếp theo
-    slideIndex++;
-    if (slideIndex > slides.length) {
-        slideIndex = 1; // Quay lại ảnh đầu tiên nếu đã hết ảnh
-    }
-
-    // Hiển thị slide hiện tại và active chấm tương ứng
-    slides[slideIndex - 1].classList.add('active');
-    dots[slideIndex - 1].classList.add('active');
-
-    // Tự động chuyển slide sau 5 giây (5000 milliseconds)
-    timeoutId = setTimeout(showSlides, 5000);
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
 }
 
-// Chức năng chuyển slide bằng nút Next/Prev
-function plusSlides(n) {
-    clearTimeout(timeoutId); // Xóa timer hiện tại khi người dùng tương tác
-
-    slideIndex += n; // Di chuyển tới slide trước/sau
-
-    if (slideIndex > slides.length) {
-        slideIndex = 1;
-    }
-    if (slideIndex < 1) {
-        slideIndex = slides.length;
-    }
-    
-    // Cập nhật hiển thị slide và chấm
-    updateSlideDisplay();
-
-    // Sau khi người dùng click, tiếp tục tự động chuyển slide sau 5 giây
-    timeoutId = setTimeout(showSlides, 5000);
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
 }
 
-// Chức năng chuyển slide bằng cách click vào chấm tròn
-function currentSlide(n) {
-    clearTimeout(timeoutId); // Xóa timer hiện tại
-
-    slideIndex = n; // Đặt slideIndex theo chấm được click
-
-    // Cập nhật hiển thị slide và chấm
-    updateSlideDisplay();
-
-    // Sau khi người dùng click, tiếp tục tự động chuyển slide sau 5 giây
-    timeoutId = setTimeout(showSlides, 5000);
+.section-title {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    color: #4A4A4A;
+    margin: 60px 0 40px;
+    position: relative;
+    padding-bottom: 10px;
 }
 
-// Hàm hỗ trợ để cập nhật hiển thị slide và chấm
-function updateSlideDisplay() {
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove('active');
+.section-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: #8C7851;
+    border-radius: 5px;
+}
+
+/* Slider */
+.slider {
+    width: 100%;
+    height: 450px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #e0e0e0;
+    box-sizing: border-box;
+}
+
+.slideshow-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.slide {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 25px;
+    background: rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.prev:hover, .next:hover {
+    background: rgba(0,0,0,0.8);
+}
+
+.prev { left: 0; border-radius: 0 3px 3px 0; }
+.next { right: 0; border-radius: 3px 0 0 3px; }
+
+.dot-container {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+}
+
+.dot {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    margin: 0 5px;
+    background: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background 0.6s;
+}
+
+.dot.active, .dot:hover {
+    background: #717171;
+}
+
+/* Welcome */
+.welcome {
+    background: #fff;
+    padding: 60px 20px;
+    margin: 30px 0;
+    text-align: center;
+    border: 1px solid #d0d0d0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.welcome h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    color: #333;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.welcome h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    color: #8C7851;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+}
+
+.welcome p, .highlight-item p, .testimonial-text {
+    font-family: 'Montserrat', sans-serif;
+    color: #666;
+    line-height: 1.8;
+    font-size: 16px;
+}
+
+/* Highlights + Testimonials Grid */
+.highlights-section, .testimonials-section {
+    background: #fcfcfc;
+    padding: 40px 0;
+}
+
+.highlights-grid, .testimonials-grid {
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 30px;
+}
+
+.highlight-item, .testimonial-item {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: 0.3s ease;
+    padding: 25px 20px;
+}
+
+.highlight-item:hover, .testimonial-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.highlight-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 15px;
+}
+
+.highlight-item h3, .testimonial-author {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background: #2c8fe5;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.btn:hover {
+    background: #1a71c2;
+}
+
+/* Avatar & Author */
+.testimonial-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #8C7851;
+}
+
+.testimonial-text {
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+.footer {
+    text-align: center;
+    background: #333;
+    color: white;
+    padding: 25px 0;
+    font-size: 14px;
+    margin-top: 80px;
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .section-title { font-size: 32px; margin: 50px 0 30px; }
+    .highlights-grid, .testimonials-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
     }
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].classList.remove('active');
-    }
-    slides[slideIndex - 1].classList.add('active');
-    dots[slideIndex - 1].classList.add('active');
+}
+
+@media (max-width: 768px) {
+    .slider { height: 300px; }
+    .welcome h2 { font-size: 38px; letter-spacing: 1px; }
+    .welcome h3 { font-size: 20px; letter-spacing: 0.5px; }
+    .highlights-grid, .testimonials-grid { grid-template-columns: 1fr; gap: 25px; }
+    .section-title { font-size: 28px; margin: 40px 0 25px; }
 }

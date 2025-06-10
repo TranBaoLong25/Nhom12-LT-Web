@@ -1,8 +1,9 @@
 <?php
-// Include phần header của trang
+
 include_once('views/fragments/header.php');
 ?>
-<link rel="stylesheet" href="/assets/css/index.css">
+<link rel="stylesheet" href="./assets//css//index.css">
+<link rel="stylesheet" href="./assets//css//header.css">
 
 <section class="slider">
     <section class="slider">
@@ -25,7 +26,7 @@ include_once('views/fragments/header.php');
     </section>
 </section>
 
-<script src="/Project_PHP//assets//js//slide.js"></script>
+<script src="/assets//js//slide.js"></script>
 
 <section class="welcome">
     <div class="welcome-content">
@@ -44,7 +45,7 @@ include_once('views/fragments/header.php');
                 <img src="./assets//images//slide-3.jpg" alt="Phòng Suite Đẳng Cấp">
                 <h3>Phòng & Suite Đẳng Cấp</h3>
                 <p>Thư giãn trong không gian riêng tư được thiết kế tinh tế, với tiện nghi hiện đại, giường King-size êm ái và tầm nhìn bao quát thành phố.</p>
-                <a href="/Project_PHP/views/bookedRoom.php" class="btn btn-primary <?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Xem Chi Tiết Phòng</a>
+                <a href="/views/bookedRoom.php" class="btn btn-primary <?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Xem Chi Tiết Phòng</a>
             </div>
 
             <div class="highlight-item">
