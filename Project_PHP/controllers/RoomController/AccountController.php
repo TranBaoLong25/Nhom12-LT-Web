@@ -14,8 +14,9 @@ class AccountController extends BaseController{
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
-            $userRepo = new UserRepository($this->conn);
-            $user = $userRepo->login($username, $password);
+            $userSer = new UserService(new UserRepository($this->conn));
+
+            $user = $userSer->login($username, $password);
             if($user){
                 $_SESSION['user'] = [
                     'id' => $user->getId(),
@@ -40,8 +41,9 @@ class AccountController extends BaseController{
                 echo "Mật khẩu xác nhận không hợp lệ!";
                 return;
             }
-            $userRepo = new UserRepository($this->conn);
-            $success = $userRepo->register($username, $password, $role);
+            $userSer = new UserService(new UserRepository($this->conn));
+            $user = new User(null, $username, $password, $role);
+            $success = $userSer->register($user);
             if($success){
                 echo('Đăng ký thành công');
                 header('Location: /login.php');
@@ -57,12 +59,25 @@ class AccountController extends BaseController{
         header('Location: /login.php');
         exit();
     }
-    public function save(){}
+    public function save(){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            $role  = $_POST['role'];
+            $user = new User(null, $username, $password, $role);
+            $userSer = new UserService(new UserRepository($this->conn));
+            $userSer->save($user);
+
+            header('Location: /admin/managerUser.php');
+            exit();
+        }
+    }
     public function deleteUser($id){
         
-        $userRepo = new UserRepository($this->conn);
-        $userRepo->deleteUser($id);
-        if($_SESSION['user']->getId() == $id){
+        $userSer = new UserService(new UserRepository($this->conn));
+
+        $userSer->deleteUser($id);
+        if($_SESSION['user']['id'] == $id){
             session_destroy();
             header('Location: /login.php');
         }
@@ -82,9 +97,10 @@ class AccountController extends BaseController{
                 return;
             }
             $updateUser = new User($id, $username, $password, $role);
-            $userRepo = new UserRepository($this->conn);
+            $userSer = new UserService(new UserRepository($this->conn));
+
             try{
-                $userRepo->updateUser($id, $updateUser);
+                $userSer->updateUser($id, $updateUser);
                 header('Location: /admin/managerUser.php');
                 exit();
             }catch(Exception $e){
@@ -95,12 +111,21 @@ class AccountController extends BaseController{
         }
 
     }
-    public function findById(){}
-    public function findByUser(){}
-    public function getAllUsers(){}
+    public function findById($id){
+        $userSer = new UserService(new UserRepository($this->conn));
+        return $userSer->findById($id);
+    }
+    public function findByUsername($username){
+        $userSer = new UserService(new UserRepository($this->conn));
+        return $userSer->findByUsername($username);
+    }
+    public function getAllUsers(){
+        $userSer = new UserService(new UserRepository($this->conn));
+        return $userSer->getAllUsers();
+    }
     public function changePassword(){
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
-            $username = $_SESSION['user']->getUsername();
+            $username = $_SESSION['user']['username'];
             $password = $_POST['password'] ?? '';
             $newPassword = $_POST['newPassword'] ?? '';
             $confirmPassword = $_POST['confirmPassword'] ?? '';
@@ -108,8 +133,9 @@ class AccountController extends BaseController{
                 echo "Mat khau moi xac thuc khong hop le";
                 return;
             }
-            $userRepo = new UserRepository($this->conn);
-            $success = $userRepo->changePassword($username, $password, $newPassword);
+            $userSer = new UserService(new UserRepository($this->conn));
+
+            $success = $userSer->changePassword($username, $password, $newPassword);
             echo $success?"Thanh cong":"that bai";
         }
     }

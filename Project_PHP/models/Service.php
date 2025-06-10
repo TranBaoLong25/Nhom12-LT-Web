@@ -6,7 +6,7 @@ class Service {
     private $service_price;
     private $user_id;
 
-    public static function createEmptyService($db) {
+    public static function createEmptyService() {
         return new Service(null, null, null, null, null);
     }
 

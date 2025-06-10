@@ -25,8 +25,8 @@
         public function login($username, $password){
             return $this->userRepository->login($username, $password);
         }
-        public function register($username, $password, $role){
-            return $this->userRepository->register($username,  $password, $role);
+        public function register(User $user){
+            return $this->userRepository->register($user);
         }
         public function changePassword($username, $password, $newPassword){
             return $this->userRepository->changePassword($username, $password, $newPassword);

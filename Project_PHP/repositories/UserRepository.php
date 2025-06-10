@@ -43,7 +43,12 @@
         }
         public function getAllUsers(){
             $stmt = $this->conn->query("SELECT * FROM users");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);  
+            $users = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $users[] = new User($row['id'], $row['username'], $row['password'], $row['role']);
+            }
+            return $users;
+
         }
         public function updateUser($id, $newData){ 
             $user = $this->findById($id);
@@ -75,21 +80,15 @@
                 return null;
                 }
         }
-        public function register($username, $password, $role){  
-            try{
-            $stmt= $this->conn->prepare("SELECT * FROM users WHERE username = ? ");
-            $stmt->execute([$username]);
-            if($stmt->rowCount() > 0){
-                return false;
-            }
+        public function register(User $user){
             $stmt = $this->conn->prepare("INSERT INTO users(username, password, role) VALUES (?, ?, ?)");
-            $stmt->execute([$username, $password, $role]);
-            return true;
+            return $stmt->execute([
+                $user->getUsername(),
+                $user->getPassword(),
+                $user->getRole()
+            ]);
         }
-        catch(PDOException $ex){
-            die("Lỗi sql: ". $ex->getMessage());
-        }   
-        }
+
         public function changePassword($username, $password, $newPassword){
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = ?");
             $stmt->execute([$username]);

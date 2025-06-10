@@ -6,7 +6,7 @@
         private $room_price;
         private $booked;
         private $image_urls = [];
-        public static function createEmptyService(){
+        public static function createEmptyHomeStay(){
             return new HomeStay(null, null, null, null, null, null);
         }
         public function __construct(
