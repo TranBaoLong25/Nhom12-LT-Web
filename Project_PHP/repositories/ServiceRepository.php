@@ -8,12 +8,11 @@ class ServiceRepository {
 
     public function save(Service $service) {
         try {
-            $stmt = $this->conn->prepare("INSERT INTO services (service_name, service_description, service_price, user_id) VALUES (?, ?, ?, ?)");
+            $stmt = $this->conn->prepare("INSERT INTO services (service_name, service_description, service_price) VALUES (?, ?, ?)");
             return $stmt->execute([
                 $service->getServiceName(),
                 $service->getServiceDescription(),
-                $service->getServicePrice(),
-                $service->getUserId()
+                $service->getServicePrice()
             ]);
         } catch (PDOException $e) {
             echo "Lỗi khi lưu service: " . $e->getMessage();
@@ -50,8 +49,7 @@ class ServiceRepository {
             $result = $stmt->execute([
                 $newData->getServiceName(),
                 $newData->getServiceDescription(),
-                $newData->getServicePrice(),
-                $newData->getUserId()
+                $newData->getServicePrice()
             ]);
             if (!$result) {
                 throw new Exception("Lỗi khi cập nhật service.");

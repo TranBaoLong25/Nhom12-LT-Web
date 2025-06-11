@@ -4,18 +4,16 @@ class Service {
     private $service_name;
     private $service_description;
     private $service_price;
-    private $user_id;
 
     public static function createEmptyService() {
         return new Service(null, null, null, null, null);
     }
 
-    public function __construct($id, $service_name, $service_description, $service_price, $user_id) {
+    public function __construct($id, $service_name, $service_description, $service_price) {
         $this->id = $id;
         $this->service_name = $service_name;
         $this->service_description = $service_description;
         $this->service_price = $service_price;
-        $this->user_id = $user_id;
     }
 
     public function getId() {
@@ -44,13 +42,6 @@ class Service {
     }
     public function setServicePrice($service_price) {
         $this->service_price = $service_price;
-    }
-
-    public function getUserId() {
-        return $this->user_id;
-    }
-    public function setUserId($user_id) {
-        $this->user_id = $user_id;
     }
 }
 ?>

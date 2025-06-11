@@ -1,5 +1,4 @@
 <?php
-
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -17,14 +16,14 @@ if (session_status() == PHP_SESSION_NONE) {
             <a href="/index.php" class="logo">Aura Hotel</a>
             <nav class="main-nav">
                 <ul class="nav-links">
-<li><a href="/index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Trang Chủ</a></li>
-<li><a href="/views/bookedRoom.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Đặt Phòng</a></li>
-<li><a href="/views/services.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'services.php' || basename($_SERVER['PHP_SELF']) == 'Services.php') ? 'active' : '' ?>">Dịch Vụ</a></li>
-<li><a href="/views/support.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'support.php' || basename($_SERVER['PHP_SELF']) == 'Support.php') ? 'active' : '' ?>">Hỗ Trợ</a></li>
-                    <?php if (isset($_SESSION['user_id'])): ?>
+                    <li><a href="/index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Trang Chủ</a></li>
+                    <li><a href="/views/bookedRoom.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Đặt Phòng</a></li>
+                    <li><a href="/views/services.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'services.php' || basename($_SERVER['PHP_SELF']) == 'Services.php') ? 'active' : '' ?>">Dịch Vụ</a></li>
+                    <li><a href="/views/support.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'support.php' || basename($_SERVER['PHP_SELF']) == 'Support.php') ? 'active' : '' ?>">Hỗ Trợ</a></li>
+                <?php if (isset($_SESSION['user']['id'])): ?>
                         <li><a href="/views/profile.php">Trang Cá Nhân</a></li>
                         <li>
-                            <form action="/login/logout.php" method="post" class="logout-form">
+                            <form action="/views/logout.php" method="post" class="logout-form">
                                 <button type="submit" class="logout-button">Đăng Xuất</button>
                             </form>
                         </li>
