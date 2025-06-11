@@ -69,7 +69,7 @@
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = ?");
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($user && password_verify($password, $user['password'])) {
+            if ($user && $password === $user['password']) {
                 return new User(
                     $user['id'],
                     $user['username'],

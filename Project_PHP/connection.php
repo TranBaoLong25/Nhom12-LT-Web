@@ -1,14 +1,22 @@
 <?php
-$host = "localhost";
-$dbname = "homestay_db"; 
-$username = "root";
-$password = "09042005"; // nếu có password thì điền vào
+class Database {
+    private static $host = "localhost";
+    private static $dbname = "homestay_db";
+    private static $username = "root";
+    private static $password = "";
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    // Thiết lập lỗi PDO thành Exception
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Kết nối thất bại: " . $e->getMessage());
+    public static function getConnection() {
+        try {
+            $conn = new PDO(
+                "mysql:host=" . self::$host . ";dbname=" . self::$dbname . ";charset=utf8",
+                self::$username,
+                self::$password
+            );
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $conn;
+        } catch (PDOException $e) {
+            die("Kết nối thất bại: " . $e->getMessage());
+        }
+    }
 }
 ?>
