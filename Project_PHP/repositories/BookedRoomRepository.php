@@ -1,13 +1,10 @@
 <?php
 
+
 class BookedRoomRepository implements IBookedRoomRepository {
     private $conn;
 
     public function __construct($conn) {
-        if ($conn === null) {
-            // Báo lỗi rõ ràng nếu chưa truyền PDO vào (giúp debug)
-            die("Error: Database connection is null in BookedRoomRepository!");
-        }
         $this->conn = $conn; // PDO connection
     }
 

@@ -1,6 +1,6 @@
 <?php
 interface IBookedRoomService {
-    public function findById(int $id): ?BookedRoom;
+public function findById(int $id): ?BookedRoom;
     public function findAll(): array;
     public function findByUserId(int $userId): array;
     public function save(BookedRoom $bookedRoom);

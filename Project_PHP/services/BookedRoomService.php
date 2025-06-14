@@ -1,6 +1,5 @@
 <?php
 
-
 class BookedRoomService implements IBookedRoomService {
     private $repository;
 
