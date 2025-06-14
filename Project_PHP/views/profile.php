@@ -12,6 +12,7 @@ include_once('./fragments/header.php');
 <link rel="stylesheet" href="/assets/css/support.css">
 <link rel="stylesheet" href="/assets/css/index.css">
 <link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="/assets/css/profile.css">
 
 <div style="margin-top: 80px;">
   <h2 style="text-align: center; color: #333;">Thông Tin Cá Nhân</h2>
@@ -109,15 +110,16 @@ include_once('./fragments/header.php');
 
       <?php if ($user['role'] === 'admin'): ?>
         <div class="admin-panel">
-          <h3 style="color: red;">🔧 Khu vực quản trị</h3>
-          <ul>
-            <li><a href="/views/admin/managerBookedRoom.php">Quản lý đặt phòng</a></li>
-            <li><a href="/views/admin/managerHomestay.php">Quản lý Homestay</a></li>
-            <li><a href="/views/admin/managerService.php">Quản lý dịch vụ</a></li>
-            <li><a href="/views/admin/managerUser.php">Quản lý người dùng</a></li>
-            <li><a href="/views/admin/managerBookedService.php">Quản lý đặt dịch vụ</a></li>
-          </ul>
-        </div>
+  <h3><span class="admin-icon">🛠️</span> KHU VỰC QUẢN TRỊ</h3>
+  <div class="admin-links">
+    <a href="/views/admin/managerBookedRoom.php">📦 Quản lý đặt phòng</a>
+    <a href="/views/admin/managerHomestay.php">🏡 Quản lý Homestay</a>
+    <a href="/views/admin/managerService.php">🧰 Quản lý dịch vụ</a>
+    <a href="/views/admin/managerUser.php">👤 Quản lý người dùng</a>
+    <a href="/views/admin/managerBookedService.php">📋 Quản lý đặt dịch vụ</a>
+  </div>
+</div>
+
       <?php endif; ?>
     <?php else: ?>
       <p>Bạn chưa đăng nhập. <a href="/views/login.php">Đăng nhập</a></p>

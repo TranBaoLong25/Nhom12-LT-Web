@@ -1,13 +1,10 @@
 <?php
-require_once __DIR__ . '/../models/BookedRoom.php'; 
-
 interface IBookedRoomService {
-    public function bookRoom(string $guestName, string $guestPhone, string $checkInDate, string $checkOutDate, int $userId, int $homestayId): ?BookedRoom;
-    public function getBookingDetails(int $bookingId): ?BookedRoom;
-    public function getUserBookings(int $userId): array;
-    public function updateBooking(BookedRoom $bookedRoom): bool;
-    public function cancelBooking(int $bookingId): bool;
-    public function getAllBookings(): array;
+    public function findById(int $id): ?BookedRoom;
+    public function findAll(): array;
+    public function findByUserId(int $userId): array;
+    public function save(BookedRoom $bookedRoom);
+    public function update(BookedRoom $bookedRoom): bool;
+    public function delete(int $id): bool;
 }
-
 ?>

@@ -1,59 +1,42 @@
 <?php
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 include_once('./fragments/header.php');
+require_once __DIR__ . '/../models/BookedRoom.php';
+require_once __DIR__ . '/../repositories/IBookedRoomRepository.php';
+require_once __DIR__ . '/../repositories/BookedRoomRepository.php';
+require_once __DIR__ . '/../services/IBookedRoomService.php';
+require_once __DIR__ . '/../services/BookedRoomService.php';
+require_once __DIR__ . '/../connection.php';
+$conn = Database::getConnection();
+$bookedRoomRepository = new BookedRoomRepository($conn);
+$bookedRoomService = new BookedRoomService($bookedRoomRepository);
 
-$rooms = [
-    [
-        'id' => 1,
-        'name' => 'Phòng Deluxe',
-        'type' => 'deluxe',
-        'price' => 800000,
-        'image' => '/assets/images/img1.jpg',
-        'description' => 'Phòng Deluxe tiện nghi và sang trọng.'
-    ],
-    [
-        'id' => 2,
-        'name' => 'Phòng Standard',
-        'type' => 'standard',
-        'price' => 500000,
-        'image' => '/assets/images/img2.jpg',
-        'description' => 'Phòng Standard thoải mái và giá cả phải chăng.'
-    ],
-    [
-        'id' => 3,
-        'name' => 'Phòng Suite',
-        'type' => 'suite',
-        'price' => 1000000,
-        'image' => '/assets/images/img3.jpg',
-        'description' => 'Phòng Suite cao cấp với không gian rộng rãi.'
-    ],
-    [
-        'id' => 4,
-        'name' => 'Phòng VIP',
-        'type' => 'vip',
-        'price' => 1500000,
-        'image' => '/assets/images/img4.jpg',
-        'description' => 'Phòng VIP đẳng cấp với dịch vụ đặc biệt.'
-    ],
-    [
-        'id' => 5,
-        'name' => 'Phòng Tổng Thống',
-        'type' => 'vip',
-        'price' => 2000000,
-        'image' => '/assets/images/img5.jpg',
-        'description' => 'Phòng Tổng Thống sang trọng nhất.'
-    ],
-    [
-        'id' => 6,
-        'name' => 'Phòng Thượng hạng',
-        'type' => 'deluxe',
-        'price' => 1200000,
-        'image' => '/assets/images/img6.jpg',
-        'description' => 'Phòng Thượng hạng với ban công đẹp.'
-    ],
-];
+// LẤY DANH SÁCH PHÒNG ĐỘNG TỪ DATABASE
+$rooms = [];
+try {
+    $stmt = $conn->query("SELECT * FROM homestay");
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $rooms[] = [
+            'id' => $row['id'],
+            'name' => $row['room_type'],
+            'type' => $row['room_type'], // Nếu bạn có cột 'type' riêng thì sửa lại
+            'price' => $row['room_price'],
+            'image' => '/assets/images/img' . $row['id'] . '.jpg', // Sửa lại nếu có cột image
+            'description' => '', // Sửa lại nếu có cột description
+        ];
+    }
+} catch (Exception $e) {
+    $rooms = [];
+}
 
-// --- Logic xử lý đặt phòng ---
+// Lấy ID người dùng hiện tại (giả định)
+$current_user_id = $_SESSION['user_id'] ?? 1;
+// Lấy danh sách các phòng đã được đặt từ database cho người dùng hiện tại
+$userBookings = $bookedRoomService->findByUserId($current_user_id);
+
+// --- Logic xử lý đặt phòng khi form được gửi (POST request) ---
 $booking_status = ''; // 'success', 'error', or ''
 $booking_details = ''; // Chứa các thông tin chi tiết để hiển thị trong modal
 
@@ -64,23 +47,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phoneNumber = htmlspecialchars($_POST['phone_number'] ?? '');
     $checkinDate = htmlspecialchars($_POST['checkin_date'] ?? '');
     $checkoutDate = htmlspecialchars($_POST['checkout_date'] ?? '');
+    
+    // Tìm homestay_id tương ứng với roomName để lưu vào DB
+    $foundHomestayId = null;
+    foreach ($rooms as $r) {
+        if ($r['name'] === $roomName) {
+            $foundHomestayId = $r['id']; 
+            break;
+        }
+    }
 
-    if (empty($roomName) || $roomPrice === false || empty($fullName) || empty($phoneNumber) || empty($checkinDate) || empty($checkoutDate)) {
+    if (empty($roomName) || $roomPrice === false || empty($fullName) || empty($phoneNumber) || empty($checkinDate) || empty($checkoutDate) || $foundHomestayId === null) {
         $booking_status = 'error';
-        $booking_details = 'Vui lòng điền đầy đủ các trường thông tin.';
+        $booking_details = 'Vui lòng điền đầy đủ các trường thông tin và đảm bảo chọn phòng hợp lệ.';
     } else if (strtotime($checkinDate) >= strtotime($checkoutDate)) {
         $booking_status = 'error';
         $booking_details = 'Ngày nhận phòng phải trước ngày trả phòng.';
     } else {
-        $booking_status = 'success';
-        $booking_details = '
-            <p><strong>Phòng:</strong> ' . $roomName . '</p>
-            <p><strong>Giá:</strong> ' . number_format($roomPrice, 0, ',', '.') . 'đ</p>
-            <p><strong>Họ tên:</strong> ' . $fullName . '</p>
-            <p><strong>Số điện thoại:</strong> ' . $phoneNumber . '</p>
-            <p><strong>Ngày nhận phòng:</strong> ' . $checkinDate . '</p>
-            <p><strong>Ngày trả phòng:</strong> ' . $checkoutDate . '</p>
-        ';
+        // Tạo đối tượng BookedRoom và lưu vào DB
+        $newBookedRoom = new BookedRoom(
+            null, // id sẽ tự động tăng
+            $fullName,
+            $phoneNumber,
+            $checkinDate,
+            $checkoutDate,
+            $current_user_id,
+            $foundHomestayId
+        );
+        $bookedRoomService->save($newBookedRoom);
+
+        if ($newBookedRoom->getId()) {
+            $booking_status = 'success';
+            $booking_details = '
+                <p><strong>Phòng:</strong> ' . $roomName . '</p>
+                <p><strong>Giá:</strong> ' . number_format($roomPrice, 0, ',', '.') . 'đ</p>
+                <p><strong>Họ tên:</strong> ' . $fullName . '</p>
+                <p><strong>Số điện thoại:</strong> ' . $phoneNumber . '</p>
+                <p><strong>Ngày nhận phòng:</strong> ' . $checkinDate . '</p>
+                <p><strong>Ngày trả phòng:</strong> ' . $checkoutDate . '</p>
+                <p><strong>Mã đặt phòng:</strong> ' . $newBookedRoom->getId() . '</p>
+            ';
+            // Cập nhật lại danh sách đặt phòng sau khi thêm mới để hiển thị ngay
+            $userBookings = $bookedRoomService->findByUserId($current_user_id);
+        } else {
+            $booking_status = 'error';
+            $booking_details = 'Đã xảy ra lỗi khi lưu đặt phòng vào hệ thống. Vui lòng thử lại.';
+        }
     }
 }
 ?>
@@ -90,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="stylesheet" href="/assets/css/header.css">
 
 <div class="container">
-    <h1>Danh sách phòng</h1>
+    <h1>Danh sách phòng có sẵn để đặt</h1>
 
     <?php if ($booking_status === 'success'): ?>
         <div id="booking-success-modal" class="success-modal">
@@ -120,10 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="filter-bar">
         <select id="room-type">
             <option value="">Tất cả loại phòng</option>
-            <option value="standard">Standard</option>
-            <option value="deluxe">Deluxe</option>
-            <option value="suite">Suite</option>
-            <option value="vip">VIP</option>
+            <option value="Standard">Standard</option>
+            <option value="Deluxe">Deluxe</option>
+            <option value="Suite">Suite</option>
+            <option value="VIP">VIP</option>
         </select>
 
         <select id="price-filter">
@@ -145,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h3><?= htmlspecialchars($room['name']) ?></h3>
                 <p>Loại: <?= htmlspecialchars($room['type']) ?></p>
                 <p>Giá: <?= number_format($room['price'], 0, ',', '.') ?>đ / đêm</p>
-                <button onclick="openBookingForm('<?= htmlspecialchars($room['name']) ?>', <?= htmlspecialchars($room['price']) ?>)">Đặt phòng</button>
+                <button onclick="openBookingForm('<?= htmlspecialchars($room['name']) ?>', <?= htmlspecialchars($room['price']) ?>, <?= htmlspecialchars($room['id']) ?>)">Đặt phòng</button>
             </div>
         <?php endforeach; ?>
     </div>
@@ -157,6 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form action="" method="POST">
                 <input type="hidden" id="booking-room-name" name="room_name">
                 <input type="hidden" id="booking-room-price" name="room_price">
+                <input type="hidden" id="booking-homestay-id" name="homestay_id">
 
                 <input type="text" name="full_name" placeholder="Họ tên" required>
                 <input type="tel" name="phone_number" placeholder="Số điện thoại" required>
@@ -169,13 +182,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
     </div>
+
+    <hr>
+
+    <h2>Các phòng bạn đã đặt</h2>
+    <div class="user-bookings-list">
+        <?php if (!empty($userBookings)): ?>
+            <?php foreach ($userBookings as $booking): ?>
+                <div class="booking-item">
+                    <p><strong>Mã đặt phòng:</strong> <?= htmlspecialchars($booking->getId()) ?></p>
+                    <p><strong>Tên khách:</strong> <?= htmlspecialchars($booking->getGuestName()) ?></p>
+                    <p><strong>Số điện thoại:</strong> <?= htmlspecialchars($booking->getGuestPhone()) ?></p>
+                    <p><strong>Ngày nhận phòng:</strong> <?= htmlspecialchars($booking->getCheckIn()) ?></p>
+                    <p><strong>Ngày trả phòng:</strong> <?= htmlspecialchars($booking->getCheckOut()) ?></p>
+                    <p><strong>Homestay ID:</strong> <?= htmlspecialchars($booking->getHomeStayId()) ?></p>
+                    <button onclick="alert('Chức năng hủy đặt phòng sẽ được phát triển sau.')">Hủy đặt phòng</button>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>Bạn chưa có đặt phòng nào.</p>
+        <?php endif; ?>
+    </div>
+
 </div>
 
 <script>
-    function openBookingForm(roomName, roomPrice) {
+    function openBookingForm(roomName, roomPrice, homestayId) {
         document.getElementById('selected-room').innerText = `Bạn đã chọn: ${roomName} - Giá: ${roomPrice.toLocaleString('vi-VN')}đ / đêm`;
         document.getElementById('booking-room-name').value = roomName;
         document.getElementById('booking-room-price').value = roomPrice;
+        document.getElementById('booking-homestay-id').value = homestayId;
         document.getElementById('booking-form').classList.add('show');
     }
 
@@ -183,7 +219,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('booking-form').classList.remove('show');
     }
 
-    // Các hàm mới cho modal thông báo
     function openSuccessModal() {
         const modal = document.getElementById('booking-success-modal');
         if (modal) {
@@ -239,22 +274,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Logic để hiển thị modal ngay khi trang tải lại nếu có thông báo
     document.addEventListener('DOMContentLoaded', function() {
         <?php if ($booking_status === 'success'): ?>
             openSuccessModal();
         <?php elseif ($booking_status === 'error'): ?>
             openErrorModal();
-            // Nếu có lỗi và bạn muốn giữ form đặt phòng hiện ra, hãy thêm dòng này
-            // document.getElementById('booking-form').classList.add('show');
         <?php endif; ?>
     });
-
-   
-    
 </script>
 
-<?php
-
-include_once('./fragments/footer.php');
-?>
+<?php include_once('./fragments/footer.php'); ?>
