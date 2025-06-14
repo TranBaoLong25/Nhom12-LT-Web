@@ -23,13 +23,15 @@ class ServiceRepository {
     public function findById($id) {
         $stmt = $this->conn->prepare("SELECT * FROM services WHERE id = ?");
         $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data ?: null;
     }
 
     public function findByServiceName($service_name) {
         $stmt = $this->conn->prepare("SELECT * FROM services WHERE service_name = ?");
         $stmt->execute([$service_name]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data ?: null;
     }
 
     public function getAllServices() {
@@ -42,14 +44,15 @@ class ServiceRepository {
         return $stmt->execute([$id]);
     }
 
-    public function updateService($id, $newData) {
+    public function updateService($id, Service $newData) {
         $service = $this->findById($id);
         if ($service) {
-            $stmt = $this->conn->prepare("UPDATE services SET service_name = ?, service_description = ?, service_price = ?, user_id = ? WHERE id = ?");
+            $stmt = $this->conn->prepare("UPDATE services SET service_name = ?, service_description = ?, service_price = ? WHERE id = ?");
             $result = $stmt->execute([
                 $newData->getServiceName(),
                 $newData->getServiceDescription(),
-                $newData->getServicePrice()
+                $newData->getServicePrice(),
+                $id
             ]);
             if (!$result) {
                 throw new Exception("Lỗi khi cập nhật service.");
