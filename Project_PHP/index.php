@@ -52,7 +52,7 @@ include_once('views/fragments/header.php');
             <div class="highlight-item">
                 <img src="./assets//images//Food.jpg" alt="Ẩm Thực Tinh Hoa">
                 <h3>Ẩm Thực Tinh Hoa</h3>
-<p>Khám phá hành trình vị giác đỉnh cao tại nhà hàng fine-dining sang trọng của chúng tôi, nơi hội tụ tinh hoa ẩm thực Á-Âu.</p>
+                <p>Khám phá hành trình vị giác đỉnh cao tại nhà hàng fine-dining sang trọng của chúng tôi, nơi hội tụ tinh hoa ẩm thực Á-Âu.</p>
                 <a href="/views//services.php" class="btn btn-primary">Xem Thực Đơn</a>
             </div>
 

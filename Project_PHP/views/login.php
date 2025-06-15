@@ -55,14 +55,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-container">
         <h2>Đăng nhập</h2>
         <form action="login.php" method="POST">
-            <div class="form-group">
-                <label for="username">Tên đăng nhập:</label>
-                <input type="text" id="username" name="username" required value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
-            </div>
-            <div class="form-group">
-                <label for="password">Mật khẩu:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+<div class="form-group">
+    <label for="username">Tên đăng nhập:</label>
+    <input type="text" id="username" name="username" required 
+        placeholder="Nhập tên đăng nhập" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
+</div>
+<div class="form-group">
+    <label for="password">Mật khẩu:</label>
+    <input type="password" id="password" name="password" required 
+        placeholder="Nhập mật khẩu">
+</div>
             <?php if (!empty($error)): ?>
                 <p class="error"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>

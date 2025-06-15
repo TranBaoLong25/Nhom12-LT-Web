@@ -1,14 +1,38 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../models/BookedRoom.php';
+require_once __DIR__ . '/../repositories/IBookedRoomRepository.php';
+require_once __DIR__ . '/../repositories/BookedRoomRepository.php';
+require_once __DIR__ . '/../services/IBookedRoomService.php';
+require_once __DIR__ . '/../services/BookedRoomService.php';
+require_once __DIR__ . '/../connection.php';
 
-// Lấy thông tin người dùng và dữ liệu đặt phòng/dịch vụ từ session hoặc DB
+$conn = Database::getConnection();
+$bookedRoomRepository = new BookedRoomRepository($conn);
+$bookedRoomService = new BookedRoomService($bookedRoomRepository);
+
+// Lấy user và danh sách phòng đã đặt
 $user = $_SESSION['user'] ?? null;
-$bookedRooms = $_SESSION['bookedRooms'] ?? [];
-$bookedServices = $_SESSION['bookedServices'] ?? [];
+$bookedRooms = [];
+if (isset($_SESSION['user_id'])) {
+    $bookedRooms = $bookedRoomService->findByUserId($_SESSION['user_id']);
+}
 
-include_once('./fragments/header.php');
+// Xử lý hủy đặt phòng
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
+    $deleteId = intval($_POST['delete_room_id']);
+    $room = $bookedRoomService->findById($deleteId);
+    if ($room && $room->getUserId() == $_SESSION['user_id']) {
+        $bookedRoomService->delete($deleteId);
+        header("Location: profile.php");
+        exit;
+    }
+}
 ?>
 
+<?php include_once('./fragments/header.php'); ?>
 <link rel="stylesheet" href="/assets/css/support.css">
 <link rel="stylesheet" href="/assets/css/index.css">
 <link rel="stylesheet" href="/assets/css/header.css">
@@ -59,31 +83,38 @@ include_once('./fragments/header.php');
             <tr>
               <th>Tên khách</th>
               <th>Số điện thoại</th>
-              <th>Loại phòng</th>
-              <th>Vị trí</th>
               <th>Ngày đến</th>
               <th>Ngày đi</th>
-              <th>Giá</th>
+              <th>Homestay ID</th>
+              <th>Hủy</th>
             </tr>
           </thead>
           <tbody>
             <?php foreach ($bookedRooms as $room): ?>
               <tr>
-                <td><?= htmlspecialchars($room['guest_name']) ?></td>
-                <td><?= htmlspecialchars($room['guest_phone']) ?></td>
-                <td><?= htmlspecialchars($room['homeStay']['room_type']) ?></td>
-                <td><?= htmlspecialchars($room['homeStay']['location']) ?></td>
-                <td><?= htmlspecialchars($room['check_in_date']) ?></td>
-                <td><?= htmlspecialchars($room['check_out_date']) ?></td>
-                <td><?= htmlspecialchars($room['homeStay']['room_price']) ?> VNĐ</td>
+                <td><?= htmlspecialchars($room->getGuestName()) ?></td>
+                <td><?= htmlspecialchars($room->getGuestPhone()) ?></td>
+                <td><?= htmlspecialchars($room->getCheckIn()) ?></td>
+                <td><?= htmlspecialchars($room->getCheckOut()) ?></td>
+                <td><?= htmlspecialchars($room->getHomeStayId()) ?></td>
+                <td>
+                  <form method="POST" action="profile.php" onsubmit="return confirm('Bạn chắc chắn muốn hủy đặt phòng này?');">
+                    <input type="hidden" name="delete_room_id" value="<?= htmlspecialchars($room->getId()) ?>">
+                    <button type="submit" class="cancel-btn">Hủy đặt phòng</button>
+                  </form>
+                </td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
       <?php endif; ?>
 
+      <!-- Dịch vụ đã đặt, admin panel giữ nguyên như cũ -->
       <h3>Dịch vụ đã đặt:</h3>
-      <?php if (empty($bookedServices)): ?>
+      <?php
+        $bookedServices = $_SESSION['bookedServices'] ?? [];
+        if (empty($bookedServices)):
+      ?>
         <p style="color: gray;">Chưa có dịch vụ nào được đặt. <a href="/views/services.php">Đặt dịch vụ ngay!</a></p>
       <?php else: ?>
         <table>
@@ -110,16 +141,15 @@ include_once('./fragments/header.php');
 
       <?php if ($user['role'] === 'admin'): ?>
         <div class="admin-panel">
-  <h3><span class="admin-icon">🛠️</span> KHU VỰC QUẢN TRỊ</h3>
-  <div class="admin-links">
-    <a href="/views/admin/managerBookedRoom.php">📦 Quản lý đặt phòng</a>
-    <a href="/views/admin/managerHomestay.php">🏡 Quản lý Homestay</a>
-    <a href="/views/admin/managerService.php">🧰 Quản lý dịch vụ</a>
-    <a href="/views/admin/managerUser.php">👤 Quản lý người dùng</a>
-    <a href="/views/admin/managerBookedService.php">📋 Quản lý đặt dịch vụ</a>
-  </div>
-</div>
-
+          <h3><span class="admin-icon">🛠️</span> KHU VỰC QUẢN TRỊ</h3>
+          <div class="admin-links">
+            <a href="/views/admin/managerBookedRoom.php">📦 Quản lý đặt phòng</a>
+            <a href="/views/admin/managerHomestay.php">🏡 Quản lý Homestay</a>
+            <a href="/views/admin/managerService.php">🧰 Quản lý dịch vụ</a>
+            <a href="/views/admin/managerUser.php">👤 Quản lý người dùng</a>
+            <a href="/views/admin/managerBookedService.php">📋 Quản lý đặt dịch vụ</a>
+          </div>
+        </div>
       <?php endif; ?>
     <?php else: ?>
       <p>Bạn chưa đăng nhập. <a href="/views/login.php">Đăng nhập</a></p>
