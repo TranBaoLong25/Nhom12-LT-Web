@@ -111,7 +111,7 @@ class HomeStayController extends BaseController {
             $minPrice = (double)str_replace('+', '', $price);
             $maxPrice = INF;
         }
-
+        
         $results = $this->homeStayService->searchHomeStays($room_type, $location, $minPrice, $maxPrice);
         include_once("views/bookedRoom.php");
     }

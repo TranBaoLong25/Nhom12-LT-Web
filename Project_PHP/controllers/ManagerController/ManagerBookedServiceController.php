@@ -13,7 +13,7 @@ class ManagerBookedServiceController {
     // Trang chính hiển thị danh sách người dùng
     public function showManagerBookedServicePage() {
         $bookedServiceSer = new BookedServiceService(new BookedServiceRepository($this->conn));
-        $bookedServices = $bookedServiceSer->getAllBookedService();
+        $bookedServices = $bookedServiceSer->getAllBookedServices();
         $newBookedService = new BookedService(null, '', '', '');
         include(__DIR__ . '/../../views/admin/managerBookedService.php');
 
@@ -24,7 +24,7 @@ class ManagerBookedServiceController {
 
     if ($bookedService) {
         $editBookedService = $bookedService;
-        $bookedServices = $bookedServiceSer->getAllBookedService();
+        $bookedServices = $bookedServiceSer->getAllBookedServices();
         include(__DIR__ . '/../../views/admin/managerBookedService.php');
     } else {
         echo "Không tìm phòng đặt.";

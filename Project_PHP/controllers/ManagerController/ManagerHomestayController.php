@@ -12,7 +12,7 @@ class ManagerHomestayController {
 
     public function showManagerHomestayPage() {
         $homeStaySer = new HomeStayService(new HomeStayRepository($this->conn));
-        $homeStays = $homeStaySer->getAllHomeStays();
+        $homeStays = $homeStaySer->getAllHomeStay();
         $newHomeStay = new HomeStay(null, '', '', 0, false, []);
         include(__DIR__ . '/../../views/admin/managerHomestay.php');
     }
@@ -23,7 +23,7 @@ class ManagerHomestayController {
 
         if ($homeStay) {
             $editHomeStay = $homeStay;
-            $homeStays = $homeStaySer->getAllHomeStays();
+            $homeStays = $homeStaySer->getAllHomeStay();
             include(__DIR__ . '/../../views/admin/managerHomestay.php');
         } else {
             echo "Không tìm thấy homestay.";
@@ -68,7 +68,7 @@ class ManagerHomestayController {
 
     public function deleteHomeStay($id) {
         $homeStaySer = new HomeStayService(new HomeStayRepository($this->conn));
-        $homeStaySer->deleteHomeStay($id);
+        $homeStaySer->deleteRoom($id);
 
         header('Location: /index.php?controller=managerHomestay');
         exit();
@@ -110,7 +110,7 @@ class ManagerHomestayController {
             $homeStaySer = new HomeStayService(new HomeStayRepository($this->conn));
 
             try {
-                $homeStaySer->updateHomeStay($id, $room_type, $location, $room_price, $booked, $image_urls);
+                $homeStaySer->updateRoom($id, $room_type, $location, $room_price, $booked, $image_urls);
                 header('Location: /index.php?controller=managerHomestay');
                 exit();
             } catch (Exception $e) {
@@ -120,25 +120,6 @@ class ManagerHomestayController {
             echo "Yêu cầu không hợp lệ";
         }
     }
-
-    public function searchHomeStay() {
-        if (isset($_GET['keyword'])) {
-            $keyword = $_GET['keyword'];
-            $homeStaySer = new HomeStayService(new HomeStayRepository($this->conn));
-            try {
-                $homeStay = $homeStaySer->findByHomeStayname($keyword);
-                $homeStays = $homeStay ? [$homeStay] : [];
-            } catch (Exception $e) {
-                $homeStays = [];
-            }
-
-            $newHomeStay = new HomeStay(null, '', '', 0, false, []);
-            include(__DIR__ . '/../../views/admin/managerHomestay.php');
-        } else {
-            echo "Thiếu từ khóa tìm kiếm.";
-        }
-    }
-
     public function findById($id) {
         $homeStaySer = new HomeStayService(new HomeStayRepository($this->conn));
         return $homeStaySer->findById($id);
