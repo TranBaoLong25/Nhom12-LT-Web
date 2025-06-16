@@ -23,7 +23,7 @@ class AccountController extends BaseController{
                     'username' => $user->getUsername(),
                     'role' => $user->getRole()
                 ];
-                header('Location: /index.php'); 
+                header('Location: /home.php'); 
                 exit();
             }
             else{
