@@ -69,5 +69,20 @@ class ServiceController extends BaseController {
     public function getAllServices() {
         return $this->serviceService->getAllServices();
     }
+    public function search() {
+    $service_name = $_GET['service_name'] ?? '';
+    $services = [];
+    $newService = new Service(null, '', '', 0);  
+
+    try {
+        $service = $this->serviceService->findByServiceName($service_name);
+        $services[] = $service;
+    } catch (Exception $e) {
+        $services = null; 
+    }
+
+    include_once __DIR__ . '/../views/services.php';
+}
+
 }
 ?>
