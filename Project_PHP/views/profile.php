@@ -7,21 +7,35 @@ require_once __DIR__ . '/../repositories/IBookedRoomRepository.php';
 require_once __DIR__ . '/../repositories/BookedRoomRepository.php';
 require_once __DIR__ . '/../services/IBookedRoomService.php';
 require_once __DIR__ . '/../services/BookedRoomService.php';
+
+require_once __DIR__ . '/../models/BookedService.php';
+require_once __DIR__ . '/../repositories/IBookedServiceRepository.php';
+require_once __DIR__ . '/../repositories/BookedServiceRepository.php';
+require_once __DIR__ . '/../services/IBookedServiceService.php';
+require_once __DIR__ . '/../services/BookedServiceService.php';
+
 require_once __DIR__ . '/../connection.php';
 
 $conn = Database::getConnection();
 $bookedRoomRepository = new BookedRoomRepository($conn);
 $bookedRoomService = new BookedRoomService($bookedRoomRepository);
 
+$bookedServiceRepository = new BookedServiceRepository($conn);
+$bookedServiceService = new BookedServiceService($bookedServiceRepository);
+
 // Lấy user và danh sách phòng đã đặt
 $user = $_SESSION['user'] ?? null;
-
-// Lấy user_id đúng cách, ưu tiên từ mảng user, fallback sang user_id cũ
 $user_id = $user['id'] ?? ($_SESSION['user_id'] ?? null);
 
 $bookedRooms = [];
 if ($user_id) {
     $bookedRooms = $bookedRoomService->findByUserId($user_id);
+}
+
+// Lấy danh sách dịch vụ đã đặt
+$bookedServices = [];
+if ($user_id) {
+    $bookedServices = $bookedServiceService->findByUserId($user_id);
 }
 
 // Xử lý hủy đặt phòng
@@ -34,8 +48,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
         exit;
     }
 }
-?>
 
+// Xử lý hủy dịch vụ đã đặt
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_service_id'])) {
+    $deleteId = intval($_POST['delete_service_id']);
+    // Tìm dịch vụ theo id
+    $service = $bookedServiceRepository->findById($deleteId);
+    // Nếu findById trả về array, dùng $service['user_id'], nếu trả về object, dùng $service->getUserId()
+    $service_user_id = is_array($service) ? ($service['user_id'] ?? null) : ($service && method_exists($service, 'getUserId') ? $service->getUserId() : null);
+    if ($service && $service_user_id == $user_id) {
+        $bookedServiceRepository->deleteBookedService($deleteId);
+        header("Location: profile.php");
+        exit;
+    }
+}
+?>
 <?php include_once('./fragments/header.php'); ?>
 <link rel="stylesheet" href="/assets/css/support.css">
 <link rel="stylesheet" href="/assets/css/index.css">
@@ -113,12 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
         </table>
       <?php endif; ?>
 
-      <!-- Dịch vụ đã đặt, admin panel giữ nguyên như cũ -->
+      <!-- Dịch vụ đã đặt -->
       <h3>Dịch vụ đã đặt:</h3>
-      <?php
-        $bookedServices = $_SESSION['bookedServices'] ?? [];
-        if (empty($bookedServices)):
-      ?>
+      <?php if (empty($bookedServices)): ?>
         <p style="color: gray;">Chưa có dịch vụ nào được đặt. <a href="/views/services.php">Đặt dịch vụ ngay!</a></p>
       <?php else: ?>
         <table>
@@ -128,15 +152,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
               <th>Giá</th>
               <th>Mô tả</th>
               <th>Thời gian</th>
+              <th>Thao Tác</th>
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($bookedServices as $booked): ?>
+            <?php foreach ($bookedServices as $service): ?>
               <tr>
-                <td><?= htmlspecialchars($booked['service']['service_name']) ?></td>
-                <td><?= htmlspecialchars($booked['service']['service_price']) ?> VNĐ</td>
-                <td><?= htmlspecialchars($booked['service']['service_description']) ?></td>
-                <td><?= htmlspecialchars($booked['time']) ?></td>
+                <td><?= htmlspecialchars($service['service_name'] ?? '') ?></td>
+                <td><?= htmlspecialchars($service['service_price'] ?? '') ?> VNĐ</td>
+                <td><?= htmlspecialchars($service['service_description'] ?? '') ?></td>
+                <td><?= htmlspecialchars($service['time'] ?? '') ?></td>
+                <td>
+                  <form method="POST" action="profile.php" onsubmit="return confirm('Bạn chắc chắn muốn hủy dịch vụ này?');">
+                    <input type="hidden" name="delete_service_id" value="<?= htmlspecialchars($service['id']) ?>">
+                    <button type="submit" class="cancel-btn">Hủy dịch vụ</button>
+                  </form>
+                </td>
               </tr>
             <?php endforeach; ?>
           </tbody>

@@ -26,6 +26,14 @@ class ServiceRepository {
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         return $data ?: null;
     }
+    public function findAll() {
+    $stmt = $this->conn->query("SELECT * FROM services");
+    $result = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $result[] = new Service($row['id'], $row['service_name'], $row['service_description'], $row['service_price']);
+    }
+    return $result;
+}
 
     public function findByServiceName($service_name) {
         $stmt = $this->conn->prepare("SELECT * FROM services WHERE service_name = ?");

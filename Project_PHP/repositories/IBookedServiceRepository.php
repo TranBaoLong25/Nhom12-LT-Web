@@ -5,6 +5,6 @@
     public function getAllBookedServices();
     public function deleteBookedService($id);
     public function updateBookedService($id, $newData);
-    public function findByUserId($user_id);
+    public function findByUserId($userId);
     }
     ?>
