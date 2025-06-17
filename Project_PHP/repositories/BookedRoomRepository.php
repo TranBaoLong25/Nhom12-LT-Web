@@ -21,6 +21,24 @@ class BookedRoomRepository implements IBookedRoomRepository {
         }
         return null;
     }
+    public function findByPhone($phone){
+        $stmt = $this->conn->prepare("SELECT * FROM booked_room WHERE phone = ?");
+        $stmt->execute([$phone]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = [];
+        foreach($rows as $row){
+            $result[] = new BookedRoom(
+                $row['id'],
+                $row['guest_name'],
+                $row['guest_phone'],
+                $row['check_in_date'],
+                $row['check_out_date'],
+                $row['user_id'],
+                $row['homestay_id']
+            );
+        }
+        return $result; 
+    }
 
     public function findAll(): array {
         $stmt = $this->conn->query("SELECT * FROM booked_room");

@@ -6,7 +6,7 @@ class ServiceService implements IServiceService {
         $this->serviceRepository = $serviceRepository;
     }
 
-    public function save(Service $service) {
+    public function save(Services $service) {
         return $this->serviceRepository->save($service);
     }
 

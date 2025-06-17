@@ -10,6 +10,10 @@ class BookedRoomService implements IBookedRoomService {
     public function findById(int $id): ?BookedRoom {
         return $this->repository->findById($id);
     }
+    public function findByPhone($phone)
+    {
+        return $this->repository->findByPhone($phone);
+    }
 
     public function findAll(): array {
         return $this->repository->findAll();

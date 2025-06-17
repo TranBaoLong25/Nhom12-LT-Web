@@ -6,7 +6,7 @@ class ServiceRepository {
         $this->conn = $conn;
     }
 
-    public function save(Service $service) {
+    public function save(Services $service) {
         try {
             $stmt = $this->conn->prepare("INSERT INTO services (service_name, service_description, service_price) VALUES (?, ?, ?)");
             return $stmt->execute([
@@ -44,7 +44,7 @@ class ServiceRepository {
         return $stmt->execute([$id]);
     }
 
-    public function updateService($id, Service $newData) {
+    public function updateService($id, Services $newData) {
         $service = $this->findById($id);
         if ($service) {
             $stmt = $this->conn->prepare("UPDATE services SET service_name = ?, service_description = ?, service_price = ? WHERE id = ?");

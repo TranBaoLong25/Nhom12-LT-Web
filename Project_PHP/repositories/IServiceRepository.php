@@ -1,6 +1,6 @@
 <?php
 interface IServiceRepository {
-    public function save(Service $service);
+    public function save(Services $service);
     public function findById($id);
     public function findByServiceName($service_name);
     public function getAllServices();

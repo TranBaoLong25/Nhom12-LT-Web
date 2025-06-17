@@ -7,5 +7,6 @@ interface IBookedRoomRepository {
     public function save(BookedRoom $bookedRoom);
     public function update(BookedRoom $bookedRoom): bool;
     public function delete(int $id): bool;
+    public function findByPhone($phone);
 }
 ?>

@@ -14,14 +14,14 @@ class ServiceController extends BaseController {
 
     public function showAll() {
         $services = $this->serviceService->getAllServices();
-        $newService = new Service(null, '', '', 0); 
+        $newService = new Services(null, '', '', 0); 
         include_once __DIR__ . '/../views/services.php';
     }
 
     public function search() {
         $name = $_GET['name'] ?? '';
         $services = [];
-        $newService = new Service(null, '', '', 0);
+        $newService = new Services(null, '', '', 0);
 
         try {
             $service = $this->serviceService->findByServiceName($name);
