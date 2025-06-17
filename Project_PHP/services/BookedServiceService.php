@@ -1,31 +1,25 @@
 <?php
-
-class BookedServiceService implements IBookedServiceService {
-    private $repository;
-
-    public function __construct(BookedServiceRepository $repository) {
-        $this->repository = $repository;
+    class BookedServiceService implements IBookedServiceService{
+        private $bookedServiceRepository;
+        public function __construct(BookedServiceRepository $bookedServiceRepository){
+            $this->bookedServiceRepository= $bookedServiceRepository;
+        }
+        public function save(BookedService $bookedService){
+            $this->bookedServiceRepository->save($bookedService);
+        }
+        public function findById($id){
+            return $this->bookedServiceRepository->findById($id);
+        }
+        public function getAllBookedServices(){
+            return $this->bookedServiceRepository->getAllBookedServices();
+        }
+        public function deleteBookedService($id){
+            $this->bookedServiceRepository->deleteBookedService($id);
+        }
+        public function updateBookedService($id, $newData){
+            return $this->bookedServiceRepository->updateBookedService($id, $newData);
+        } 
+        public function findByUserId($user_id){
+            return $this->bookedServiceRepository->findByUserId($user_id);
+        }
     }
-
-    public function createBookedService($time, $userId, $serviceId) {
-        $bookedService = new BookedService(null, $time, $userId, $serviceId);
-        return $this->repository->save($bookedService);
-    }
-
-    public function getBookedServiceById($id) {
-        return $this->repository->findById($id);
-    }
-
-    public function getAllBookedServices() {
-        return $this->repository->getAllServices();
-    }
-
-    public function deleteBookedService($id) {
-        return $this->repository->deleteService($id);
-    }
-
-    public function updateBookedService($id, $newData) {
-        return $this->repository->updateService($id, $newData);
-    }
-}
-?>

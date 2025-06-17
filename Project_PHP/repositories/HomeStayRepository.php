@@ -117,5 +117,98 @@ class HomeStayRepository implements IHomeStayRepository {
         }
         return $images;
     }
+    public function findByLocation($location){
+        $stmt = $this->conn->prepare("SELECT * FROM homestay WHERE location = ?");
+        $stmt->execute([$location]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = [];
+        foreach($rows as $row){
+            $result[] = new HomeStay(
+                $row['id'],
+                $row['room_type'],
+                $row['location'],
+                $row['room_price'],
+                $row['booked']
+            );
+        }
+        if(empty($result)){
+            throw new Exception("Không tìm thấy Homestay theo vị trí: $location");
+        }
+        return $result;
+    }
+    public function findByType($room_type){
+        $stmt = $this->conn->prepare("SELECT * FROM homestay WHERE room_type = ?");
+        $stmt->execute([$room_type]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = [];
+        foreach($rows as $row){
+            $result[] = new HomeStay(
+                $row['id'],
+                $row['room_type'],
+                $row['location'],
+                $row['room_price'],
+                $row['booked']
+            );
+        }
+        if(empty($result)){
+            throw new Exception("Không tìm thấy Homestay theo loại phòng: $room_type");
+        }
+        return $result;
+    }
+    public function findByPrice($min, $max){
+        $stmt = $this->conn->prepare("SELECT * FROM homestay WHERE room_price BETWEEN ? AND ?");
+        $stmt->execute([$min, $max]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $homeStay = []; 
+        foreach($rows as $row){
+            $homeStay[] = new HomeStay(
+                $row['id'],
+                $row['room_type'],
+                $row['location'],
+                $row['room_price'],
+                $row['booked']
+            );
+        }
+        if(empty($homeStay)){
+            throw new Exception("Không tìm thấy homestay nào trong khoảng giá đã chọn.");
+        }
+        return $homeStay;
+    }
+    public function searchHomeStays($room_type = null, $location = null, $minPrice = null, $maxPrice = null) {
+        $query = "SELECT * FROM homestay WHERE 1=1";
+        $params = [];
+        if ($room_type !== null) {
+            $query .= " AND room_type = ?";
+            $params[] = $room_type;
+        }
+        if ($location !== null) {
+            $query .= " AND location = ?";
+            $params[] = $location;
+        } 
+        if ($minPrice !== null) {
+            $query .= " AND room_price >= ?";
+            $params[] = $minPrice;
+        } 
+        if ($maxPrice !== null) {
+            $query .= " AND room_price <= ?";
+            $params[] = $maxPrice;
+        }
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params); 
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = []; 
+        foreach ($rows as $row) {
+            $result[] = new HomeStay(
+                $row['id'],
+                $row['room_type'],
+                $row['location'],
+                $row['room_price'],
+                $row['booked']
+            );
+        }
+
+        return $result;
+    }
+
 }
 ?>
