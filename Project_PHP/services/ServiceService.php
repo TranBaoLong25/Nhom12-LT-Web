@@ -6,7 +6,7 @@ class ServiceService implements IServiceService {
         $this->serviceRepository = $serviceRepository;
     }
 
-    public function save(Services $service) {
+    public function save(Service $service) {
         return $this->serviceRepository->save($service);
     }
 
@@ -14,7 +14,7 @@ class ServiceService implements IServiceService {
         return $this->serviceRepository->findById($id);
     }
     public function findAll() {
-    return $this->serviceRepository->findAll();
+        return $this->serviceRepository->findAll();
     }
     public function findByServiceName($service_name) {
         return $this->serviceRepository->findByServiceName($service_name);

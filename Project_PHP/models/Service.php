@@ -1,12 +1,12 @@
 <?php
-class Services {
+class Service {
     private $id; 
     private $service_name;
     private $service_description;
     private $service_price;
 
     public static function createEmptyService() {
-        return new Services(null, null, null, null);
+        return new Service(null, null, null, null);
     }
 
     public function __construct($id, $service_name, $service_description, $service_price) {

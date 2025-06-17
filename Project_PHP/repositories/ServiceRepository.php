@@ -6,7 +6,7 @@ class ServiceRepository {
         $this->conn = $conn;
     }
 
-    public function save(Services $service) {
+    public function save(Service $service) {
         try {
             $stmt = $this->conn->prepare("INSERT INTO services (service_name, service_description, service_price) VALUES (?, ?, ?)");
             return $stmt->execute([
@@ -24,22 +24,23 @@ class ServiceRepository {
         $stmt = $this->conn->prepare("SELECT * FROM services WHERE id = ?");
         $stmt->execute([$id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ?: null;
+        return $data ? new Service($data['id'], $data['service_name'], $data['service_description'], $data['service_price']) : null;
     }
+
     public function findAll() {
-    $stmt = $this->conn->query("SELECT * FROM services");
-    $result = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $result[] = new Service($row['id'], $row['service_name'], $row['service_description'], $row['service_price']);
+        $stmt = $this->conn->query("SELECT * FROM services");
+        $result = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $result[] = new Service($row['id'], $row['service_name'], $row['service_description'], $row['service_price']);
+        }
+        return $result;
     }
-    return $result;
-}
 
     public function findByServiceName($service_name) {
         $stmt = $this->conn->prepare("SELECT * FROM services WHERE service_name = ?");
         $stmt->execute([$service_name]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ?: null;
+        return $data ? new Service($data['id'], $data['service_name'], $data['service_description'], $data['service_price']) : null;
     }
 
     public function getAllServices() {
@@ -52,7 +53,7 @@ class ServiceRepository {
         return $stmt->execute([$id]);
     }
 
-    public function updateService($id, Services $newData) {
+    public function updateService($id, Service $newData) {
         $service = $this->findById($id);
         if ($service) {
             $stmt = $this->conn->prepare("UPDATE services SET service_name = ?, service_description = ?, service_price = ? WHERE id = ?");
