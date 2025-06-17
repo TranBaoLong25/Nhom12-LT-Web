@@ -1,9 +1,9 @@
 <?php
 // Include phần header của trang
 
-include_once('views/fragments/header.php');
+include_once 'views/fragments/header.php';
 ?>
-<link rel="stylesheet" href="./assets//css//index.css">
+<link rel="stylesheet" href="./assets//css//home.css">
 <link rel="stylesheet" href="./assets//css//header.css">
 
 <section class="slider">

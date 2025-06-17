@@ -9,7 +9,6 @@ require_once __DIR__ . '/../services/UserService.php';
 require_once __DIR__ . '/../repositories/UserRepository.php';
 require_once __DIR__ . '/../models/User.php';
 
-
 $conn = Database::getConnection();
 $userService = new UserService(new UserRepository($conn));
 
@@ -30,7 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'username' => $user->getUsername(),
                 'role' => $user->getRole()
             ];
-            header('Location: /index.php'); 
+            // Đồng bộ thêm user_id để các file khác dùng cũng không lỗi
+            $_SESSION['user_id'] = $user->getId();
+
+            header('Location: /home.php'); 
             exit();
         } else {
             $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
@@ -46,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Đăng nhập - AURA HOTEL</title>
     <link rel="stylesheet" href="/assets/css/header.css">
     <link rel="stylesheet" href="/assets/css/auth.css"> 
+    <link rel="stylesheet" href="/assets/css/home.css"> 
 </head>
 <body>
 

@@ -15,16 +15,20 @@ $bookedRoomService = new BookedRoomService($bookedRoomRepository);
 
 // Lấy user và danh sách phòng đã đặt
 $user = $_SESSION['user'] ?? null;
+
+// Lấy user_id đúng cách, ưu tiên từ mảng user, fallback sang user_id cũ
+$user_id = $user['id'] ?? ($_SESSION['user_id'] ?? null);
+
 $bookedRooms = [];
-if (isset($_SESSION['user_id'])) {
-    $bookedRooms = $bookedRoomService->findByUserId($_SESSION['user_id']);
+if ($user_id) {
+    $bookedRooms = $bookedRoomService->findByUserId($user_id);
 }
 
 // Xử lý hủy đặt phòng
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
     $deleteId = intval($_POST['delete_room_id']);
     $room = $bookedRoomService->findById($deleteId);
-    if ($room && $room->getUserId() == $_SESSION['user_id']) {
+    if ($room && $room->getUserId() == $user_id) {
         $bookedRoomService->delete($deleteId);
         header("Location: profile.php");
         exit;
@@ -86,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
               <th>Ngày đến</th>
               <th>Ngày đi</th>
               <th>Homestay ID</th>
-              <th>Hủy</th>
+              <th>Thao Tác</th>
             </tr>
           </thead>
           <tbody>
@@ -156,5 +160,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
     <?php endif; ?>
   </div>
 </div>
-
-<?php include_once './fragments/footer.php'; ?>

@@ -38,10 +38,14 @@ $booking_details = ''; // Chứa các thông tin chi tiết để hiển thị t
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Nếu chưa đăng nhập thì chuyển về trang đăng nhập
-    if (!isset($_SESSION['user_id'])) {
+    // Có thể kiểm tra bằng user_id hoặc user['id'] đều được
+    if (empty($_SESSION['user']['id']) && empty($_SESSION['user_id'])) {
         header('Location: /views/login.php');
         exit;
     }
+
+    // Ưu tiên lấy user_id từ $_SESSION['user']['id'] nếu có, nếu không thì lấy user_id
+    $current_user_id = $_SESSION['user']['id'] ?? $_SESSION['user_id'];
 
     $roomName = htmlspecialchars($_POST['room_name'] ?? '');
     $roomPrice = filter_var($_POST['room_price'] ?? '', FILTER_VALIDATE_INT);
@@ -66,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $booking_status = 'error';
         $booking_details = 'Ngày nhận phòng phải trước ngày trả phòng.';
     } else {
-        $current_user_id = $_SESSION['user_id'];
         $newBookedRoom = new BookedRoom(
             null,
             $fullName,
@@ -100,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="stylesheet" href="/assets/css/bookedroom.css">
 <link rel="stylesheet" href="/assets/css/index.css">
 <link rel="stylesheet" href="/assets/css/header.css">
+
 
 <div class="container">
     <h1>Danh sách phòng có sẵn để đặt</h1>
@@ -268,4 +272,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
 </script>
 
-<?php include_once('./fragments/footer.php'); ?>
+<?php 

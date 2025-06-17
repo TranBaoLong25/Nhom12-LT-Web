@@ -2,9 +2,6 @@
 
 include_once('./fragments/header.php');
 
-// Dữ liệu dịch vụ mẫu
-// Đây là dữ liệu giả lập cho các dịch vụ của bạn.
-// Trong thực tế, bạn sẽ lấy dữ liệu này từ cơ sở dữ liệu.
 $services = [
     [
         'id' => 101,
@@ -116,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dịch vụ Khách sạn</title>
     <link rel="stylesheet" href="/assets/css/service.css">
-    <link rel="stylesheet" href="/assets/css/index.css">
+    <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/header.css">
 </head>
 <body>

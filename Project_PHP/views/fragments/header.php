@@ -16,7 +16,7 @@ if (session_status() == PHP_SESSION_NONE) {
             <a href="/index.php" class="logo">Aura Hotel</a>
             <nav class="main-nav">
                 <ul class="nav-links">
-                    <li><a href="/index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Trang Chủ</a></li>
+                    <li><a href="/home.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'home.php') ? 'active' : '' ?>">Trang Chủ</a></li>
                     <li><a href="/views/bookedRoom.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'bookedRoom.php' || basename($_SERVER['PHP_SELF']) == 'bookedroom.php') ? 'active' : '' ?>">Đặt Phòng</a></li>
                     <li><a href="/views/services.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'services.php' || basename($_SERVER['PHP_SELF']) == 'Services.php') ? 'active' : '' ?>">Dịch Vụ</a></li>
                     <li><a href="/views/support.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'support.php' || basename($_SERVER['PHP_SELF']) == 'Support.php') ? 'active' : '' ?>">Hỗ Trợ</a></li>

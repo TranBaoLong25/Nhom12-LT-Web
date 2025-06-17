@@ -6,7 +6,7 @@
         private $check_in_date;
         private $check_out_date;
         private $user_id;
-        private $homestay_id;
+        private $homestay_id;                 
         public static function createEmptyBookedRoom(){
             return new BookedRoom(null, null, null, null, null, null, null);
         }
