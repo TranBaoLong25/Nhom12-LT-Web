@@ -14,6 +14,11 @@ require_once __DIR__ . '/../repositories/BookedServiceRepository.php';
 require_once __DIR__ . '/../services/IBookedServiceService.php';
 require_once __DIR__ . '/../services/BookedServiceService.php';
 
+require_once __DIR__ . '/../models/Service.php';
+require_once __DIR__ . '/../repositories/IServiceRepository.php';
+require_once __DIR__ . '/../repositories/ServiceRepository.php';
+require_once __DIR__ . '/../services/IServiceService.php';
+require_once __DIR__ . '/../services/ServiceService.php';
 require_once __DIR__ . '/../connection.php';
 
 $conn = Database::getConnection();
@@ -22,7 +27,7 @@ $bookedRoomService = new BookedRoomService($bookedRoomRepository);
 
 $bookedServiceRepository = new BookedServiceRepository($conn);
 $bookedServiceService = new BookedServiceService($bookedServiceRepository);
-
+$services = (new ServiceService(new ServiceRepository($conn)))->getAllServices();
 // Lấy user và danh sách phòng đã đặt
 $user = $_SESSION['user'] ?? null;
 $user_id = $user['id'] ?? ($_SESSION['user_id'] ?? null);
@@ -139,40 +144,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_service_id']))
           </tbody>
         </table>
       <?php endif; ?>
-
-      <!-- Dịch vụ đã đặt -->
-      <h3>Dịch vụ đã đặt:</h3>
-      <?php if (empty($bookedServices)): ?>
-        <p style="color: gray;">Chưa có dịch vụ nào được đặt. <a href="/views/services.php">Đặt dịch vụ ngay!</a></p>
-      <?php else: ?>
-        <table>
-          <thead>
-            <tr>
-              <th>Tên dịch vụ</th>
-              <th>Giá</th>
-              <th>Mô tả</th>
-              <th>Thời gian</th>
-              <th>Thao Tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($bookedServices as $service): ?>
-              <tr>
-                <td><?= htmlspecialchars($service['service_name'] ?? '') ?></td>
-                <td><?= htmlspecialchars($service['service_price'] ?? '') ?> VNĐ</td>
-                <td><?= htmlspecialchars($service['service_description'] ?? '') ?></td>
-                <td><?= htmlspecialchars($service['time'] ?? '') ?></td>
-                <td>
-                  <form method="POST" action="profile.php" onsubmit="return confirm('Bạn chắc chắn muốn hủy dịch vụ này?');">
-                    <input type="hidden" name="delete_service_id" value="<?= htmlspecialchars($service['id']) ?>">
-                    <button type="submit" class="cancel-btn">Hủy dịch vụ</button>
-                  </form>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      <?php endif; ?>
+<h3>Dịch vụ đã đặt:</h3>
+<?php if (empty($bookedServices)): ?>
+  <p style="color: gray;">Chưa có dịch vụ nào được đặt. <a href="/views/services.php">Đặt dịch vụ ngay!</a></p>
+<?php else: ?>
+  <table>
+    <thead>
+      <tr>
+        <th>Tên dịch vụ</th>
+        <th>Giá</th>
+        <th>Mô tả</th>
+        <th>Thời gian</th>
+        <th>Thao Tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php foreach ($bookedServices as $booked): ?>
+        <?php
+          // Tìm dịch vụ tương ứng theo ID
+          $matchedService = null;
+          foreach ($services as $s) {
+              if ($s->getId() == $booked->getServiceId()) {
+                  $matchedService = $s;
+                  break;
+              }
+          }
+        ?>
+        <?php if ($matchedService): ?>
+          <tr>
+            <td><?= htmlspecialchars($matchedService->getServiceName()) ?></td>
+            <td><?= htmlspecialchars($matchedService->getServicePrice()) ?> VNĐ</td>
+            <td><?= htmlspecialchars($matchedService->getServiceDescription()) ?></td>
+            <td><?= htmlspecialchars($booked->getTime()) ?></td>
+            <td>
+              <form method="POST" action="profile.php" onsubmit="return confirm('Bạn chắc chắn muốn hủy dịch vụ này?');">
+                <input type="hidden" name="delete_service_id" value="<?= htmlspecialchars($booked->getId()) ?>">
+                <button type="submit" class="cancel-btn">Hủy dịch vụ</button>
+              </form>
+            </td>
+          </tr>
+        <?php endif; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+<?php endif; ?>
 
       <?php if ($user['role'] === 'admin'): ?>
         <div class="admin-panel">
