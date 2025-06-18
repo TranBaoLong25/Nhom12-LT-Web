@@ -1,5 +1,5 @@
 <?php
-class ServiceRepository {
+class ServiceRepository implements IServiceRepository {
     private $conn;
 
     public function __construct($conn) {
@@ -23,29 +23,51 @@ class ServiceRepository {
     public function findById($id) {
         $stmt = $this->conn->prepare("SELECT * FROM services WHERE id = ?");
         $stmt->execute([$id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ? new Service($data['id'], $data['service_name'], $data['service_description'], $data['service_price']) : null;
-    }
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    public function findAll() {
-        $stmt = $this->conn->query("SELECT * FROM services");
-        $result = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $result[] = new Service($row['id'], $row['service_name'], $row['service_description'], $row['service_price']);
+        if ($row) {
+            return new Service(
+                $row['id'],
+                $row['service_name'],
+                $row['service_description'],
+                $row['service_price']
+            );
         }
-        return $result;
+
+        return null;
     }
 
     public function findByServiceName($service_name) {
         $stmt = $this->conn->prepare("SELECT * FROM services WHERE service_name = ?");
         $stmt->execute([$service_name]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ? new Service($data['id'], $data['service_name'], $data['service_description'], $data['service_price']) : null;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return new Service(
+                $row['id'],
+                $row['service_name'],
+                $row['service_description'],
+                $row['service_price']
+            );
+        }
+
+        return null;
     }
 
     public function getAllServices() {
         $stmt = $this->conn->query("SELECT * FROM services");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $services = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $services[] = new Service(
+                $row['id'],
+                $row['service_name'],
+                $row['service_description'],
+                $row['service_price']
+            );
+        }
+
+        return $services;
     }
 
     public function deleteService($id) {
@@ -53,7 +75,7 @@ class ServiceRepository {
         return $stmt->execute([$id]);
     }
 
-    public function updateService($id, Service $newData) {
+    public function updateService($id, $newData) {
         $service = $this->findById($id);
         if ($service) {
             $stmt = $this->conn->prepare("UPDATE services SET service_name = ?, service_description = ?, service_price = ? WHERE id = ?");

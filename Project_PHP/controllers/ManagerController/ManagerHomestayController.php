@@ -1,4 +1,6 @@
 <?php
+include_once(__DIR__ . '/../../services/IHomeStayService.php');
+include_once(__DIR__ . '/../../repositories/IHomeStayRepository.php');
 include_once(__DIR__ . '/../../services/HomeStayService.php');
 include_once(__DIR__ . '/../../repositories/HomeStayRepository.php');
 include_once(__DIR__ . '/../../models/HomeStay.php');

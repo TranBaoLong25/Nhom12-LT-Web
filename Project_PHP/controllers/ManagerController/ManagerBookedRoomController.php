@@ -1,4 +1,6 @@
 <?php
+include_once(__DIR__ . '/../../services/IBookedRoomService.php');
+include_once(__DIR__ . '/../../repositories/IBookedRoomRepository.php');
 include_once(__DIR__ . '/../../services/BookedRoomService.php');
 include_once(__DIR__ . '/../../repositories/BookedRoomRepository.php');
 include_once(__DIR__ . '/../../models/BookedRoom.php');

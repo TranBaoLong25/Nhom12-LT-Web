@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Đồng bộ thêm user_id để các file khác dùng cũng không lỗi
             $_SESSION['user_id'] = $user->getId();
 
-            header('Location: /home.php'); 
+            header('Location: ../../views/home.php'); 
             exit();
         } else {
             $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';

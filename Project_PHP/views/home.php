@@ -1,10 +1,10 @@
 <?php
 // Include phần header của trang
 
-include_once 'views/fragments/header.php';
+require_once __DIR__ . '/fragments/header.php';
 ?>
-<link rel="stylesheet" href="./assets//css//home.css">
-<link rel="stylesheet" href="./assets//css//header.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/header.css">
 
 <section class="slider">
     <section class="slider">

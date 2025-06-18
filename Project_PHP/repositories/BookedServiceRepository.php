@@ -7,49 +7,48 @@ class BookedServiceRepository implements IBookedServiceRepository {
         $this->conn = $conn;
     }
 
-public function save(BookedService $bookedService) {
-    try {
-        $stmt = $this->conn->prepare("INSERT INTO booked_service (time, user_id, service_id) VALUES (?, ?, ?)");
-        $result = $stmt->execute([
-            $bookedService->getTime(),
-            $bookedService->getUserId(),
-            $bookedService->getServiceId()
-        ]);
-        if (!$result) {
-            // In lỗi SQL chi tiết ra màn hình (debug)
-            $errorInfo = $stmt->errorInfo();
-            echo "<pre>Lỗi SQL: ";
-            print_r($errorInfo);
-            echo "</pre>";
+    public function save(BookedService $bookedService) {
+        try {
+            $stmt = $this->conn->prepare("INSERT INTO booked_service (time, user_id, service_id) VALUES (?, ?, ?)");
+            return $stmt->execute([
+                $bookedService->getTime(),
+                $bookedService->getUserId(),
+                $bookedService->getServiceId()
+            ]);
+        } catch (PDOException $e) {
+            echo "Lỗi khi lưu BookedService: " . $e->getMessage();
+            return false;
         }
         return $result;
-    } catch (PDOException $e) {
-        echo "Lỗi khi lưu BookedService: " . $e->getMessage();
-        return false;
-    }
-}
-
-    public function findByUserId($user_id){
-        // SAI: booked_services => ĐÚNG: booked_service
-        $stmt = $this->conn->prepare("
-            SELECT bs.*, s.service_name, s.service_description, s.service_price
-            FROM booked_service bs
-            JOIN services s ON bs.service_id = s.id
-            WHERE bs.user_id = ?
-        ");
-        $stmt->execute([$user_id]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function findById($id) {
         $stmt = $this->conn->prepare("SELECT * FROM booked_service WHERE id = ?");
         $stmt->execute([$id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ?: null;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return new BookedService(
+                $row['id'],
+                $row['time'],
+                $row['user_id'],
+                $row['service_id']
+            );
+        }
+        return null;
     }
 
     public function getAllBookedServices() {
         $stmt = $this->conn->query("SELECT * FROM booked_service");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $bookedService = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $bookedService[] = new BookedService(
+            $row['id'],
+            $row['time'],
+            $row['user_id'],
+            $row['service_id']
+        );
+    }
+        return $bookedService;
     }
 
     public function deleteBookedService($id) {
@@ -74,6 +73,24 @@ public function save(BookedService $bookedService) {
         } else {
             throw new Exception("BookedService với ID này không tồn tại.");
         }
+    }
+    public function findByUserId($user_id){
+        $stmt = $this->conn->prepare("SELECT * FROM booked_service WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = [];
+        foreach($rows as $row){
+            $result[] = new BookedService(
+                $row['id'],
+                $row['time'],
+                $row['user_id'],
+                $row['service_id']
+            );
+        }
+        if(empty($result)){
+            throw new Exception("UserId: $user_id chưa đặt dịch vụ nào.");
+        }
+        return $result; 
     }
 }
 ?>

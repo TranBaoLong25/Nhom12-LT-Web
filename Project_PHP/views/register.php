@@ -83,8 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="role">Vai trò:</label>
                 <select id="role" name="role" required>
-                    <option value="user" <?= (($_POST['role'] ?? '') === 'user' ? 'selected' : '') ?>>Người dùng</option>
-                    <option value="admin" <?= (($_POST['role'] ?? '') === 'admin' ? 'selected' : '') ?>>Quản trị viên</option>
+                    <option value="customer" <?= (($_POST['role'] ?? '') === 'customer' ? 'selected' : '') ?>>Người dùng</option>
                 </select>
             </div>
 

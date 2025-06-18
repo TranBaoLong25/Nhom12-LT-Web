@@ -1,4 +1,6 @@
 <?php
+include_once(__DIR__ . '/../../services/IServiceService.php');
+include_once(__DIR__ . '/../../repositories/IServiceRepository.php');
 include_once(__DIR__ . '/../../services/ServiceService.php');
 include_once(__DIR__ . '/../../repositories/ServiceRepository.php');
 include_once(__DIR__ . '/../../models/Service.php');
@@ -13,7 +15,7 @@ class ManagerServiceController {
     public function showManagerServicePage() {
         $serviceSer = new ServiceService(new ServiceRepository($this->conn));
         $services = $serviceSer->getAllServices();
-        $newService = Service::createEmptyService();
+        $newService = Services::createEmptyService();
         include(__DIR__ . '/../../views/admin/managerService.php');
     }
 
@@ -23,7 +25,7 @@ class ManagerServiceController {
             $desc = $_POST['service_description'] ?? '';
             $price = $_POST['service_price'] ?? 0;
 
-            $service = new Service(null, $name, $desc, $price);
+            $service = new Services(null, $name, $desc, $price);
             $serviceSer = new ServiceService(new ServiceRepository($this->conn));
             $serviceSer->save($service);
 
@@ -57,7 +59,7 @@ class ManagerServiceController {
                 return;
             }
 
-            $service = new Service($id, $name, $desc, $price);
+            $service = new Services($id, $name, $desc, $price);
             $serviceSer = new ServiceService(new ServiceRepository($this->conn));
             try {
                 $serviceSer->updateService($id, $service);
@@ -90,7 +92,7 @@ class ManagerServiceController {
                 $services = [];
             }
 
-            $newService = Service::createEmptyService();
+            $newService = Services::createEmptyService();
             include(__DIR__ . '/../../views/admin/managerService.php');
         } else {
             echo "Thiếu từ khóa tìm kiếm.";

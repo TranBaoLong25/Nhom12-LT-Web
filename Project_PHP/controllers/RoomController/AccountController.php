@@ -1,5 +1,5 @@
 <?php
-include_once('services/UserService.php');
+include_once('services/UserService.php'); 
 
 class AccountController extends BaseController{
     private $conn;
@@ -23,7 +23,7 @@ class AccountController extends BaseController{
                     'username' => $user->getUsername(),
                     'role' => $user->getRole()
                 ];
-                header('Location: /home.php'); 
+                header('Location: ../../views/home.php'); 
                 exit();
             }
             else{

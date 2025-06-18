@@ -21,7 +21,7 @@ require_once __DIR__ . '/../connection.php';
 $conn = Database::getConnection();
 $serviceRepository = new ServiceRepository($conn);
 $serviceService = new ServiceService($serviceRepository);
-$services = $serviceService->findAll(); 
+$services = $serviceService->getAllServices(); 
 
 // Tạo repo/service cho BookedService
 $bookedServiceRepository = new BookedServiceRepository($conn);
