@@ -19,6 +19,7 @@ $conn = Database::getConnection();
 $homestayRepository = new HomeStayRepository($conn);
 $homestayService = new HomeStayService($homestayRepository);
 
+// Nếu có biến $editHomestay được controller truyền vào thì không gọi getAll nữa
 $homestays = $homestays ?? $homestayService->getAllHomeStay();
 ?>
 
@@ -26,21 +27,21 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý người dùng</title>
+    <title>Quản lý Homestay</title>
     <style>
         body { font-family: Arial; padding: 20px; }
         nav a { margin-right: 10px; text-decoration: none; }
         table { border-collapse: collapse; width: 100%; margin-top: 10px; }
         table, th, td { border: 1px solid black; }
         th, td { padding: 8px; text-align: center; }
-        .Homestay-form { margin-top: 30px; }
+        .homestay-form { margin-top: 30px; }
         input, select { margin: 5px; padding: 5px; }
     </style>
 </head>
 <body>
 <nav>
     <a href="/">Trang Chủ</a>
-    <a href="/views/admin/managerUser.php">Homestays</a>
+    <a href="/views/admin/managerUser.php">Users</a>
     <a href="/views/admin/managerService.php">Service</a>
     <a href="/views/admin/managerHomestay.php">Homestay</a>
     <a href="/views/admin/managerBookedRoom.php">BookedRoom</a>
@@ -48,7 +49,6 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
 </nav>
 
 <div class="container">
-    <!-- Form tìm kiếm -->
     <form method="GET" action="/index.php">
         <input type="hidden" name="controller" value="managerHomestay">
         <input type="hidden" name="action" value="searchHomestay">
@@ -56,31 +56,38 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         <button type="submit">Tìm kiếm</button>
     </form>
 
-    <!-- Danh sách người dùng -->
-    <h2>Danh sách người dùng</h2>
+    <h2>Danh sách Homestay</h2>
     <?php if (empty($homestays)): ?>
-        <p>Không tìm thấy người dùng!</p>
+        <p>Không tìm thấy homestay!</p>
     <?php else: ?>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tên đăng nhập</th>
-                    <th>Mật khẩu</th>
-                    <th>Vai trò</th>
+                    <th>Loại phòng</th>
+                    <th>Vị trí</th>
+                    <th>Giá phòng</th>
+                    <th>Đã đặt</th>
+                    <th>Ảnh</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($homestays as $homestay): ?>
                     <tr>
-                        <td><?= htmlspecialchars($Homestay->getId()) ?></td>
-                        <td><?= htmlspecialchars($Homestay->getHomestayname()) ?></td>
-                        <td><?= htmlspecialchars($Homestay->getPassword()) ?></td>
-                        <td><?= htmlspecialchars($Homestay->getRole()) ?></td>
+                        <td><?= htmlspecialchars($homestay->getId()) ?></td>
+                        <td><?= htmlspecialchars($homestay->getRoomType()) ?></td>
+                        <td><?= htmlspecialchars($homestay->getLocation()) ?></td>
+                        <td><?= htmlspecialchars($homestay->getRoomPrice()) ?></td>
+                        <td><?= $homestay->getBooked() ? 'Đã đặt' : 'Chưa đặt' ?></td>
                         <td>
-                            <a href="/index.php?controller=managerHomestay&action=editHomestay&id=<?= $Homestay->getId() ?>">Sửa</a> |
-                            <a href="/index.php?controller=managerHomestay&action=deleteHomestay&id=<?= $Homestay->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
+                            <?php foreach ($homestay->getImage() as $img): ?>
+                                <img src="/<?= htmlspecialchars($img) ?>" width="80">
+                            <?php endforeach; ?>
+                        </td>
+                        <td>
+                            <a href="/index.php?controller=managerHomestay&action=editHomestay&id=<?= $homestay->getId() ?>">Sửa</a> |
+                            <a href="/index.php?controller=managerHomestay&action=deleteHomestay&id=<?= $homestay->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -88,33 +95,26 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         </table>
     <?php endif; ?>
 
-    <!-- Form thêm/sửa người dùng -->
-    <div class="Homestay-form">
+    <div class="homestay-form">
         <?php if (isset($editHomestay)) { ?>
-            <h3>Sửa người dùng</h3>
-            <form action="/index.php?controller=managerHomestay&action=updateHomestay" method="POST">
+            <h3>Sửa Homestay</h3>
+            <form action="/index.php?controller=managerHomestay&action=updateHomestay" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<?= $editHomestay->getId() ?>">
-                <input type="text" name="Homestayname" value="<?= $editHomestay->getHomestayname() ?>" required>
-                <input type="text" name="password" value="<?= $editHomestay->getPassword() ?>" required>
-                <select name="role" required>
-                    <option value="admin" <?= $editHomestay->getRole() === 'admin' ? 'selected' : '' ?>>Admin</option>
-                    <option value="manager" <?= $editHomestay->getRole() === 'manager' ? 'selected' : '' ?>>Manager</option>
-                    <option value="staff" <?= $editHomestay->getRole() === 'staff' ? 'selected' : '' ?>>Staff</option>
-                    <option value="customer" <?= $editHomestay->getRole() === 'customer' ? 'selected' : '' ?>>Customer</option>
-                </select>
+                <input type="text" name="room_type" value="<?= $editHomestay->getRoomType() ?>" required>
+                <input type="text" name="location" value="<?= $editHomestay->getLocation() ?>" required>
+                <input type="number" name="room_price" value="<?= $editHomestay->getRoomPrice() ?>" required>
+                <label>Đã đặt: <input type="checkbox" name="booked" <?= $editHomestay->getBooked() ? 'checked' : '' ?>></label>
+                <label>Ảnh mới: <input type="file" name="images[]" multiple></label>
                 <button type="submit">Cập nhật</button>
             </form>
         <?php } else { ?>
-            <h3>Thêm người dùng</h3>
-            <form action="/index.php?controller=managerHomestay&action=save" method="POST">
-                <input type="text" name="Homestayname" placeholder="Tên đăng nhập" required>
-                <input type="text" name="password" placeholder="Mật khẩu" required>
-                <select name="role" required>
-                    <option value="admin">Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="staff">Staff</option>
-                    <option value="customer">Customer</option>
-                </select>
+            <h3>Thêm Homestay</h3>
+            <form action="/index.php?controller=managerHomestay&action=save" method="POST" enctype="multipart/form-data">
+                <input type="text" name="room_type" placeholder="Loại phòng" required>
+                <input type="text" name="location" placeholder="Vị trí" required>
+                <input type="number" name="room_price" placeholder="Giá phòng" required>
+                <label>Đã đặt: <input type="checkbox" name="booked"></label>
+                <label>Ảnh: <input type="file" name="images[]" multiple></label>
                 <button type="submit">Thêm</button>
             </form>
         <?php } ?>

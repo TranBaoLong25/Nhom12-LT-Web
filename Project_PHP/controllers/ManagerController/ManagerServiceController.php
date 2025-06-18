@@ -9,13 +9,16 @@ class ManagerServiceController {
     private $conn;
 
     public function __construct($conn) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->conn = $conn;
     }
 
     public function showManagerServicePage() {
         $serviceSer = new ServiceService(new ServiceRepository($this->conn));
         $services = $serviceSer->getAllServices();
-        $newService = Services::createEmptyService();
+        $editService = $_SESSION['editService'] ?? null;
         include(__DIR__ . '/../../views/admin/managerService.php');
     }
 
@@ -25,7 +28,7 @@ class ManagerServiceController {
             $desc = $_POST['service_description'] ?? '';
             $price = $_POST['service_price'] ?? 0;
 
-            $service = new Services(null, $name, $desc, $price);
+            $service = new Service(null, $name, $desc, $price);
             $serviceSer = new ServiceService(new ServiceRepository($this->conn));
             $serviceSer->save($service);
 
@@ -39,9 +42,9 @@ class ManagerServiceController {
         $service = $serviceSer->findById($id);
 
         if ($service) {
-            $editService = $service;
-            $services = $serviceSer->getAllServices();
-            include(__DIR__ . '/../../views/admin/managerService.php');
+            $_SESSION['editService'] = $service;
+            $this->showManagerServicePage();
+            exit();
         } else {
             echo "Không tìm thấy dịch vụ.";
         }
@@ -59,7 +62,7 @@ class ManagerServiceController {
                 return;
             }
 
-            $service = new Services($id, $name, $desc, $price);
+            $service = new Service($id, $name, $desc, $price);
             $serviceSer = new ServiceService(new ServiceRepository($this->conn));
             try {
                 $serviceSer->updateService($id, $service);
@@ -92,7 +95,7 @@ class ManagerServiceController {
                 $services = [];
             }
 
-            $newService = Services::createEmptyService();
+            $editService = null;
             include(__DIR__ . '/../../views/admin/managerService.php');
         } else {
             echo "Thiếu từ khóa tìm kiếm.";

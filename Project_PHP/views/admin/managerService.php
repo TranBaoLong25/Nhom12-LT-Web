@@ -9,38 +9,39 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
 }
 
 require_once(__DIR__ . '/../../connection.php');
-require_once(__DIR__ . '/../../models/User.php');
-require_once(__DIR__ . '/../../repositories/IUserRepository.php');
-require_once(__DIR__ . '/../../repositories/UserRepository.php');
-require_once(__DIR__ . '/../../services/IUserService.php');
-require_once(__DIR__ . '/../../services/UserService.php');
+require_once(__DIR__ . '/../../models/Service.php');
+require_once(__DIR__ . '/../../repositories/IServiceRepository.php');
+require_once(__DIR__ . '/../../repositories/ServiceRepository.php');
+require_once(__DIR__ . '/../../services/IServiceService.php');
+require_once(__DIR__ . '/../../services/ServiceService.php');
 
 $conn = Database::getConnection();
-$userRepository = new UserRepository($conn);
-$userService = new UserService($userRepository);
+$serviceRepository = new ServiceRepository($conn);
+$serviceService = new ServiceService($serviceRepository);
 
-$users = $users ?? $userService->getAllUsers();
+$services = $services ?? $serviceService->getAllServices();
+$editService = $editService ?? null;
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý người dùng</title>
+    <title>Quản lý dịch vụ</title>
     <style>
         body { font-family: Arial; padding: 20px; }
         nav a { margin-right: 10px; text-decoration: none; }
         table { border-collapse: collapse; width: 100%; margin-top: 10px; }
         table, th, td { border: 1px solid black; }
         th, td { padding: 8px; text-align: center; }
-        .user-form { margin-top: 30px; }
-        input, select { margin: 5px; padding: 5px; }
+        .service-form { margin-top: 30px; }
+        input, textarea { margin: 5px; padding: 5px; width: 300px; }
     </style>
 </head>
 <body>
 <nav>
     <a href="/">Trang Chủ</a>
-    <a href="/views/admin/managerUser.php">Users</a>
+    <a href="/views/admin/managerUser.php">User</a>
     <a href="/views/admin/managerService.php">Service</a>
     <a href="/views/admin/managerHomestay.php">Homestay</a>
     <a href="/views/admin/managerBookedRoom.php">BookedRoom</a>
@@ -48,39 +49,37 @@ $users = $users ?? $userService->getAllUsers();
 </nav>
 
 <div class="container">
-    <!-- Form tìm kiếm -->
     <form method="GET" action="/index.php">
-        <input type="hidden" name="controller" value="manageruser">
-        <input type="hidden" name="action" value="searchUser">
-        <input type="text" name="keyword" placeholder="Tìm theo username">
+        <input type="hidden" name="controller" value="managerService">
+        <input type="hidden" name="action" value="search">
+        <input type="text" name="keyword" placeholder="Tìm theo tên dịch vụ">
         <button type="submit">Tìm kiếm</button>
     </form>
 
-    <!-- Danh sách người dùng -->
-    <h2>Danh sách người dùng</h2>
-    <?php if (empty($users)): ?>
-        <p>Không tìm thấy người dùng!</p>
+    <h2>Danh sách dịch vụ</h2>
+    <?php if (empty($services)): ?>
+        <p>Không tìm thấy dịch vụ!</p>
     <?php else: ?>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tên đăng nhập</th>
-                    <th>Mật khẩu</th>
-                    <th>Vai trò</th>
+                    <th>Tên dịch vụ</th>
+                    <th>Mô tả</th>
+                    <th>Giá</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($users as $user): ?>
+                <?php foreach ($services as $service): ?>
                     <tr>
-                        <td><?= htmlspecialchars($user->getId()) ?></td>
-                        <td><?= htmlspecialchars($user->getUsername()) ?></td>
-                        <td><?= htmlspecialchars($user->getPassword()) ?></td>
-                        <td><?= htmlspecialchars($user->getRole()) ?></td>
+                        <td><?= htmlspecialchars($service->getId()) ?></td>
+                        <td><?= htmlspecialchars($service->getServiceName()) ?></td>
+                        <td><?= htmlspecialchars($service->getServiceDescription()) ?></td>
+                        <td><?= htmlspecialchars($service->getServicePrice()) ?></td>
                         <td>
-                            <a href="/index.php?controller=manageruser&action=editUser&id=<?= $user->getId() ?>">Sửa</a> |
-                            <a href="/index.php?controller=manageruser&action=deleteUser&id=<?= $user->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
+                            <a href="/index.php?controller=managerService&action=edit&id=<?= $service->getId() ?>">Sửa</a> |
+                            <a href="/index.php?controller=managerService&action=delete&id=<?= $service->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -88,36 +87,25 @@ $users = $users ?? $userService->getAllUsers();
         </table>
     <?php endif; ?>
 
-    <!-- Form thêm/sửa người dùng -->
-    <div class="user-form">
-        <?php if (isset($editUser)) { ?>
-            <h3>Sửa người dùng</h3>
-            <form action="/index.php?controller=manageruser&action=updateUser" method="POST">
-                <input type="hidden" name="id" value="<?= $editUser->getId() ?>">
-                <input type="text" name="username" value="<?= $editUser->getUsername() ?>" required>
-                <input type="text" name="password" value="<?= $editUser->getPassword() ?>" required>
-                <select name="role" required>
-                    <option value="admin" <?= $editUser->getRole() === 'admin' ? 'selected' : '' ?>>Admin</option>
-                    <option value="manager" <?= $editUser->getRole() === 'manager' ? 'selected' : '' ?>>Manager</option>
-                    <option value="staff" <?= $editUser->getRole() === 'staff' ? 'selected' : '' ?>>Staff</option>
-                    <option value="customer" <?= $editUser->getRole() === 'customer' ? 'selected' : '' ?>>Customer</option>
-                </select>
+    <div class="service-form">
+        <?php if ($editService): ?>
+            <h3>Sửa dịch vụ</h3>
+            <form action="/index.php?controller=managerService&action=update" method="POST">
+                <input type="hidden" name="id" value="<?= $editService->getId() ?>">
+                <input type="text" name="service_name" value="<?= $editService->getServiceName() ?>" required>
+                <textarea name="service_description" required><?= $editService->getServiceDescription() ?></textarea>
+                <input type="number" name="service_price" value="<?= $editService->getServicePrice() ?>" required>
                 <button type="submit">Cập nhật</button>
             </form>
-        <?php } else { ?>
-            <h3>Thêm người dùng</h3>
-            <form action="/index.php?controller=manageruser&action=save" method="POST">
-                <input type="text" name="username" placeholder="Tên đăng nhập" required>
-                <input type="text" name="password" placeholder="Mật khẩu" required>
-                <select name="role" required>
-                    <option value="admin">Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="staff">Staff</option>
-                    <option value="customer">Customer</option>
-                </select>
+        <?php else: ?>
+            <h3>Thêm dịch vụ</h3>
+            <form action="/index.php?controller=managerService&action=save" method="POST">
+                <input type="text" name="service_name" placeholder="Tên dịch vụ" required>
+                <textarea name="service_description" placeholder="Mô tả dịch vụ" required></textarea>
+                <input type="number" name="service_price" placeholder="Giá" required>
                 <button type="submit">Thêm</button>
             </form>
-        <?php } ?>
+        <?php endif; ?>
     </div>
 </div>
 </body>
