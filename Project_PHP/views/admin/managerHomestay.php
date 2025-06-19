@@ -28,15 +28,196 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
 <head>
     <meta charset="UTF-8">
     <title>Quản lý Homestay</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        nav a { margin-right: 10px; text-decoration: none; }
-        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-        table, th, td { border: 1px solid black; }
-        th, td { padding: 8px; text-align: center; }
-        .homestay-form { margin-top: 30px; }
-        input, select { margin: 5px; padding: 5px; }
-    </style>
+<style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        padding: 30px 0 0 0;
+        margin: 0;
+        background: #f4f8fb;
+        min-height: 100vh;
+    }
+    nav {
+        background: #0066cc;
+        padding: 15px 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    nav a {
+        color: #fff;
+        margin-right: 18px;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+    nav a:hover, nav a:focus {
+        background: #0050a7;
+        color: #fff;
+    }
+    .container {
+        max-width: 1050px;
+        margin: auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        padding: 30px 40px 40px 40px;
+    }
+    h2, h3 {
+        color: #055290;
+        margin-bottom: 16px;
+        letter-spacing: 0.5px;
+    }
+    form {
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    form input[type="text"], form input[type="number"] {
+        padding: 7px 12px;
+        font-size: 15px;
+        border: 1px solid #c0d3e0;
+        border-radius: 6px;
+        background: #f9fbfd;
+        transition: border .2s;
+        outline: none;
+    }
+    form input[type="text"]:focus, form input[type="number"]:focus {
+        border: 1.5px solid #4096ee;
+    }
+    form button {
+        background: #0066cc;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 7px 18px;
+        font-size: 15px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+    form button:hover {
+        background: #004c9c;
+    }
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: #f9fbfd;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    th, td {
+        padding: 11px 10px;
+        text-align: center;
+    }
+    th {
+        background: #e6f0fa;
+        color: #055290;
+        font-size: 16px;
+        letter-spacing: 0.5px;
+        border-bottom: 1.5px solid #b5d1ea;
+    }
+    tr:nth-child(even) {
+        background: #f1f5f9;
+    }
+    tr:hover {
+        background: #e0ecff;
+        transition: background 0.2s;
+    }
+    td {
+        font-size: 15px;
+        color: #333;
+        vertical-align: middle;
+    }
+    a {
+        color: #0066cc;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+    a:hover {
+        color: #003366;
+        text-decoration: underline;
+    }
+    .homestay-form {
+        margin-top: 35px;
+        padding: 18px 22px 12px 22px;
+        background: #f5faff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        max-width: 450px;
+    }
+    .homestay-form h3 {
+        margin-top: 0;
+    }
+    .homestay-form form {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+    .homestay-form input[type="text"],
+    .homestay-form input[type="number"] {
+        font-size: 15px;
+        padding: 7px 12px;
+        border: 1px solid #c0d3e0;
+        border-radius: 6px;
+        background: #fff;
+        margin-bottom: 6px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .homestay-form label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        color: #055290;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+    .homestay-form input[type="checkbox"] {
+        margin-right: 4px;
+        accent-color: #0066cc;
+    }
+    .homestay-form input[type="file"] {
+        font-size: 14px;
+    }
+    .homestay-form button {
+        margin-top: 10px;
+        min-width: 110px;
+    }
+    td img {
+        border-radius: 8px;
+        margin: 2px 4px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        max-width: 80px;
+        max-height: 50px;
+        object-fit: cover;
+        background: #e6f0fa;
+    }
+    @media (max-width: 700px) {
+        .container {
+            padding: 15px 4vw;
+        }
+        .homestay-form {
+            padding: 12px 8px;
+        }
+        th, td {
+            font-size: 14px;
+            padding: 8px 4px;
+        }
+        td img {
+            max-width: 60px;
+            max-height: 38px;
+        }
+    }
+</style>
 </head>
 <body>
 <nav>
