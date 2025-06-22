@@ -38,13 +38,11 @@ $booking_details = ''; // Chứa các thông tin chi tiết để hiển thị t
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Nếu chưa đăng nhập thì chuyển về trang đăng nhập
-    // Có thể kiểm tra bằng user_id hoặc user['id'] đều được
     if (empty($_SESSION['user']['id']) && empty($_SESSION['user_id'])) {
         header('Location: /views/login.php');
         exit;
     }
 
-    // Ưu tiên lấy user_id từ $_SESSION['user']['id'] nếu có, nếu không thì lấy user_id
     $current_user_id = $_SESSION['user']['id'] ?? $_SESSION['user_id'];
 
     $roomName = htmlspecialchars($_POST['room_name'] ?? '');
@@ -63,9 +61,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Lấy ngày hôm nay và ngày mai từ múi giờ trình duyệt (gửi lên form) sẽ tốt hơn, 
+    // nhưng ở đây ta vẫn check phía backend bằng múi giờ server.
+    $today = date('Y-m-d');
+    $tomorrow = date('Y-m-d', strtotime('+1 day'));
+
     if (empty($roomName) || $roomPrice === false || empty($fullName) || empty($phoneNumber) || empty($checkinDate) || empty($checkoutDate) || $foundHomestayId === null) {
         $booking_status = 'error';
         $booking_details = 'Vui lòng điền đầy đủ các trường thông tin và đảm bảo chọn phòng hợp lệ.';
+    } else if ($checkinDate !== $today) {
+        $booking_status = 'error';
+        $booking_details = 'Ngày nhận phòng (check-in) phải là hôm nay (' . date('d/m/Y') . ').';
+    } else if ($checkoutDate !== $tomorrow) {
+        $booking_status = 'error';
+        $booking_details = 'Ngày trả phòng (check-out) phải là ngày mai (' . date('d/m/Y', strtotime('+1 day')) . ').';
     } else if (strtotime($checkinDate) >= strtotime($checkoutDate)) {
         $booking_status = 'error';
         $booking_details = 'Ngày nhận phòng phải trước ngày trả phòng.';
@@ -202,6 +211,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('booking-room-price').value = roomPrice;
         document.getElementById('booking-homestay-id').value = homestayId;
         document.getElementById('booking-form').classList.add('show');
+
+        // Gán mặc định ngày hôm nay cho check-in, ngày mai cho check-out khi mở form
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const yyyy2 = tomorrow.getFullYear();
+        const mm2 = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const dd2 = String(tomorrow.getDate()).padStart(2, '0');
+        const tomorrowStr = `${yyyy2}-${mm2}-${dd2}`;
+
+        document.getElementById('checkin_date').value = todayStr;
+        document.getElementById('checkout_date').value = tomorrowStr;
     }
 
     function closeBookingForm() {
@@ -271,5 +297,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
     });
 </script>
-
-<?php 

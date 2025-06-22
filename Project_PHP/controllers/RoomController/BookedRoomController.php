@@ -20,24 +20,38 @@ switch ($action) {
         break;
 
     case 'add':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $bookedRoom = new BookedRoom(
-                null,
-                $_POST['guest_name'],
-                $_POST['guest_phone'],
-                $_POST['check_in_date'],
-                $_POST['check_out_date'],
-                $_POST['user_id'],
-                $_POST['homestay_id']
-            );
-            $service->save($bookedRoom);
-            header('Location: BookedRoomController.php?action=list');
-            exit;
-        } else {
-            // Hiện form thêm mới
-            include 'bookedroom_add_view.php';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $checkIn = $_POST['check_in_date'];
+        $checkOut = $_POST['check_out_date'];
+        $today = date('Y-m-d'); // Lấy ngày hôm nay (định dạng yyyy-mm-dd)
+
+        // Kiểm tra: check-in phải là hôm nay và check-out phải sau hôm nay
+        if ($checkIn !== $today) {
+            die("❌ Ngày nhận phòng phải là hôm nay: $today");
         }
-        break;
+        if ($checkOut <= $today) {
+            die("❌ Ngày trả phòng phải sau hôm nay.");
+        }
+
+        // Nếu hợp lệ thì tạo đối tượng BookedRoom
+        $bookedRoom = new BookedRoom(
+            null,
+            $_POST['guest_name'],
+            $_POST['guest_phone'],
+            $checkIn,
+            $checkOut,
+            $_POST['user_id'],
+            $_POST['homestay_id']
+        );
+        $service->save($bookedRoom);
+        header('Location: BookedRoomController.php?action=list');
+        exit;
+    } else {
+        // Hiện form thêm mới
+        include 'bookedroom_add_view.php';
+    }
+    break;
+
 
     case 'edit':
         $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
