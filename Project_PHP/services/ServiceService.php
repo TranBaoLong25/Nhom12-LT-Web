@@ -15,9 +15,6 @@ class ServiceService implements IServiceService {
     public function findById($id) {
         return $this->serviceRepository->findById($id);
     }
-    public function findAll() {
-        return $this->serviceRepository->findAll();
-    }
     public function findByServiceName($service_name) {
         return $this->serviceRepository->findByServiceName($service_name);
     }
