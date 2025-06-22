@@ -90,6 +90,7 @@ require_once __DIR__ . '/fragments/header.php';
         </div>
     </section>
 
-</div> <?php
-// Include phần footer của trang
-include_once 'views/fragments/footer.php';
+</div> 
+
+<?php
+include_once('./fragments/footer.php');
