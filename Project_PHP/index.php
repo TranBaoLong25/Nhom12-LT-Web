@@ -13,17 +13,25 @@ function toStudlyCaps($string) {
 
 $controllerClass = toStudlyCaps($controller) . 'Controller';
 
-$controllerFile = __DIR__ . '/controllers/ManagerController/' . $controllerClass . '.php';
+$controllerPaths = [
+    __DIR__ . '/controllers/ManagerController/' . $controllerClass . '.php',
+    __DIR__ . '/controllers/RoomController/' . $controllerClass . '.php',
+    __DIR__ . '/controllers/' . $controllerClass . '.php',
+];
 
-if (!file_exists($controllerFile)) {
-    $controllerFile = __DIR__ . '/controllers/' . $controllerClass . '.php';
+$controllerFile = null;
+foreach ($controllerPaths as $path) {
+    if (file_exists($path)) {
+        $controllerFile = $path;
+        break;
+    }
 }
 
-if (!file_exists($controllerFile)) {
+if (!$controllerFile) {
     exit("Không tìm thấy controller: $controllerClass");
 }
 
-require_once $controllerFile;
+require_once $controllerFile; 
 
 $conn = Database::getConnection();
 $controllerInstance = new $controllerClass($conn);

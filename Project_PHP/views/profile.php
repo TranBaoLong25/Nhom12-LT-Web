@@ -17,6 +17,12 @@ require_once __DIR__ . '/../services/BookedServiceService.php';
 require_once __DIR__ . '/../models/Service.php';
 require_once __DIR__ . '/../repositories/IServiceRepository.php';
 require_once __DIR__ . '/../repositories/ServiceRepository.php';
+require_once __DIR__ . '/../services/IHomeStayService.php';
+require_once __DIR__ . '/../services/HomeStayService.php';
+
+require_once __DIR__ . '/../models/HomeStay.php';
+require_once __DIR__ . '/../repositories/IHomeStayRepository.php';
+require_once __DIR__ . '/../repositories/HomeStayRepository.php';
 require_once __DIR__ . '/../services/IServiceService.php';
 require_once __DIR__ . '/../services/ServiceService.php';
 require_once __DIR__ . '/../connection.php';
@@ -28,6 +34,8 @@ $bookedRoomService = new BookedRoomService($bookedRoomRepository);
 $bookedServiceRepository = new BookedServiceRepository($conn);
 $bookedServiceService = new BookedServiceService($bookedServiceRepository);
 $services = (new ServiceService(new ServiceRepository($conn)))->getAllServices();
+
+$homestays = (new HomeStayService(new HomeStayRepository($conn)))->getAllHomeStay();
 // Lấy user và danh sách phòng đã đặt
 $user = $_SESSION['user'] ?? null;
 $user_id = $user['id'] ?? ($_SESSION['user_id'] ?? null);
@@ -92,21 +100,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_service_id']))
         <div class="modal-content">
           <label for="toggleEdit" class="close-btn">&times;</label>
           <h3>Chỉnh sửa thông tin</h3>
-          <form action="/edit-profile.php" method="post">
-            <label><strong>👤 Username:</strong></label>
-            <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
+            <form action="" method="post">
+              <label><strong>👤 Username:</strong></label>
+              <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" readonly>
 
-            <label><strong>🔑 Mật khẩu mới:</strong></label>
-            <input type="password" name="password" required>
+              <label><strong>🔑 Mật khẩu hiện tại:</strong></label>
+              <input type="password" name="password" required>
 
-            <label><strong>🔑 Mật khẩu cũ:</strong></label>
-            <input type="password" name="confirmPassword" required>
+              <label><strong>🔑 Mật khẩu mới:</strong></label>
+              <input type="password" name="newPassword" required>
 
-            <div class="button-group">
-              <label for="toggleEdit" class="btn-edit cancel-btn">Hủy</label>
-              <button type="submit" class="btn-edit">Lưu thay đổi</button>
-            </div>
-          </form>
+              <label><strong>🔑 Xác nhận mật khẩu mới:</strong></label>
+              <input type="password" name="confirmPassword" required>
+
+              <div class="button-group">
+                <label for="toggleEdit" class="btn-edit cancel-btn">Hủy</label>
+                <button type="submit" class="btn-edit">Lưu thay đổi</button>
+              </div>
+            </form>
+
         </div>
       </div>
 
@@ -122,25 +134,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_service_id']))
               <th>Ngày đến</th>
               <th>Ngày đi</th>
               <th>Homestay ID</th>
+              <th>Giá</th>
               <th>Thao Tác</th>
             </tr>
           </thead>
           <tbody>
             <?php foreach ($bookedRooms as $room): ?>
-              <tr>
-                <td><?= htmlspecialchars($room->getGuestName()) ?></td>
-                <td><?= htmlspecialchars($room->getGuestPhone()) ?></td>
-                <td><?= htmlspecialchars($room->getCheckIn()) ?></td>
-                <td><?= htmlspecialchars($room->getCheckOut()) ?></td>
-                <td><?= htmlspecialchars($room->getHomeStayId()) ?></td>
-                <td>
-                  <form method="POST" action="profile.php" onsubmit="return confirm('Bạn chắc chắn muốn hủy đặt phòng này?');">
-                    <input type="hidden" name="delete_room_id" value="<?= htmlspecialchars($room->getId()) ?>">
-                    <button type="submit" class="cancel-btn">Hủy đặt phòng</button>
-                  </form>
-                </td>
-              </tr>
-            <?php endforeach; ?>
+                <tr>
+                  <td><?= htmlspecialchars($room->getGuestName()) ?></td>
+                  <td><?= htmlspecialchars($room->getGuestPhone()) ?></td>
+                  <td><?= htmlspecialchars($room->getCheckIn()) ?></td>
+                  <td><?= htmlspecialchars($room->getCheckOut()) ?></td>
+                  <td><?= htmlspecialchars($room->getHomeStayId()) ?></td>
+                  <td>
+                    <?php
+                      foreach ($homestays as $ht) {
+                          if ($ht->getId() == $room->getHomeStayId()) {
+                              echo htmlspecialchars($ht->getRoomPrice());
+                              break;
+                          }
+                      }
+                    ?>
+                  </td>
+                  <td>
+                    <form method="POST" action="profile.php" onsubmit="return confirm('Bạn chắc chắn muốn hủy đặt phòng này?');">
+                      <input type="hidden" name="delete_room_id" value="<?= htmlspecialchars($room->getId()) ?>">
+                      <button type="submit" class="cancel-btn">Hủy đặt phòng</button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
           </tbody>
         </table>
       <?php endif; ?>
