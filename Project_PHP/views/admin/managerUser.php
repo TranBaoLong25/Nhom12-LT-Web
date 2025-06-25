@@ -27,7 +27,6 @@ $users = $users ?? $userService->getAllUsers();
 <head>
     <meta charset="UTF-8">
     <title>Quản lý người dùng</title>
-    <style>
 <style>
     body {
         font-family: 'Segoe UI', Arial, sans-serif;
@@ -142,7 +141,9 @@ $users = $users ?? $userService->getAllUsers();
         color: #003366;
         text-decoration: underline;
     }
-    .user-form {
+    .user-form { 
+        text-align: center;
+        margin: 0 auto; 
         margin-top: 35px;
         padding: 18px 22px 12px 22px;
         background: #f5faff;
@@ -184,10 +185,9 @@ $users = $users ?? $userService->getAllUsers();
         }
     }
 </style>
-    </style>
 </head>
 <body>
-<nav>
+<nav style="text-align: center;">
     <a href="/">Trang Chủ</a>
     <a href="/views/admin/managerUser.php">Users</a>
     <a href="/views/admin/managerService.php">Service</a>
@@ -206,7 +206,7 @@ $users = $users ?? $userService->getAllUsers();
     </form>
 
     <!-- Danh sách người dùng -->
-    <h2>Danh sách người dùng</h2>
+    <h2 style="text-align: center;">Danh sách người dùng</h2>
     <?php if (empty($users)): ?>
         <p>Không tìm thấy người dùng!</p>
     <?php else: ?>
@@ -228,14 +228,16 @@ $users = $users ?? $userService->getAllUsers();
                         <td><?= htmlspecialchars($user->getPassword()) ?></td>
                         <td><?= htmlspecialchars($user->getRole()) ?></td>
                         <td>
-                            <a href="/index.php?controller=manageruser&action=editUser&id=<?= $user->getId() ?>">Sửa</a> |
-                            <a href="/index.php?controller=manageruser&action=deleteUser&id=<?= $user->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
+                            <a href="/index.php?controller=managerUser&action=editUser&id=<?= $user->getId() ?>">Sửa</a> |
+                            <a href="/index.php?controller=managerUser&action=deleteUser&id=<?= $user->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     <?php endif; ?>
+    
+   <p style="text-align: center;"><a href="/views/admin/managerUser.php">Thêm người dùng</a></p> 
 
     <!-- Form thêm/sửa người dùng -->
     <div class="user-form">
@@ -251,7 +253,7 @@ $users = $users ?? $userService->getAllUsers();
                     <option value="staff" <?= $editUser->getRole() === 'staff' ? 'selected' : '' ?>>Staff</option>
                     <option value="customer" <?= $editUser->getRole() === 'customer' ? 'selected' : '' ?>>Customer</option>
                 </select>
-                <button type="submit">Cập nhật</button>
+                <button style="align-self: center;" type="submit">Cập nhật</button>
             </form>
         <?php } else { ?>
             <h3>Thêm người dùng</h3>
@@ -264,7 +266,7 @@ $users = $users ?? $userService->getAllUsers();
                     <option value="staff">Staff</option>
                     <option value="customer">Customer</option>
                 </select>
-                <button type="submit">Thêm</button>
+                <button style="align-self: center;" type="submit">Thêm</button>
             </form>
         <?php } ?>
     </div>

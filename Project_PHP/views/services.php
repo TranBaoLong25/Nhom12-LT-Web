@@ -34,12 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: /views/login.php');
         exit;
     }
-    $current_user_id = $_SESSION['user']['id'] ?? $_SESSION['user_id'];
 
+    $current_user_id = $_SESSION['user']['id'] ?? $_SESSION['user_id'];
     $serviceId = filter_var($_POST['service_id'] ?? '', FILTER_VALIDATE_INT);
     $bookingDate = htmlspecialchars($_POST['service_booking_date'] ?? '');
 
-    // Validate dữ liệu
     $foundService = null;
     foreach ($services as $s) {
         if ($s->getId() == $serviceId) {
@@ -52,27 +51,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $booking_status = 'error';
         $booking_details = 'Vui lòng chọn dịch vụ và ngày đặt hợp lệ.';
     } else {
-$bookedService = new BookedService(
-    null,              
-    $bookingDate,      
-    $current_user_id,  
-    $serviceId         
-);
-        $saveResult = $bookedServiceService->save($bookedService);
+        $bookedService = new BookedService(
+            null,
+            $bookingDate,
+            $current_user_id,
+            $serviceId
+        );
 
-        if ($saveResult) {
-            $booking_status = 'success';
-            $booking_details = '
-                <p><strong>Dịch vụ:</strong> ' . htmlspecialchars($foundService->getServiceName()) . '</p>
-                <p><strong>Giá:</strong> ' . number_format($foundService->getServicePrice(), 0, ',', '.') . 'đ</p>
-                <p><strong>Ngày đặt:</strong> ' . htmlspecialchars($bookingDate) . '</p>
-            ';
-        } else {
+        try {
+            $saveResult = $bookedServiceService->save($bookedService);
+
+            if ($saveResult) {
+                $booking_status = 'success';
+                $booking_details = '
+                    <p><strong>Dịch vụ:</strong> ' . htmlspecialchars($foundService->getServiceName()) . '</p>
+                    <p><strong>Giá:</strong> ' . number_format($foundService->getServicePrice(), 0, ',', '.') . 'đ</p>
+                    <p><strong>Ngày đặt:</strong> ' . htmlspecialchars($bookingDate) . '</p>
+                ';
+            } else {
+                $booking_status = 'error';
+                $booking_details = 'Có lỗi khi lưu dữ liệu vào hệ thống!';
+            }
+        } catch (Exception $e) {
             $booking_status = 'error';
-            $booking_details = 'Có lỗi khi lưu dữ liệu vào hệ thống!';
+            $booking_details = $e->getMessage(); // ⚠️ Show "Ngày đặt dịch vụ phải sau hoặc là ngày hôm nay."
         }
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="vi">

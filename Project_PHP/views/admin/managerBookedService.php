@@ -156,6 +156,8 @@ $bookedServices = $bookedServices ?? $bookedServiceService->getAllBookedServices
         text-decoration: underline;
     }
     .form-section {
+        text-align: center;
+        margin: 0 auto; 
         margin-top: 35px;
         padding: 18px 22px 12px 22px;
         background: #f5faff;
@@ -204,7 +206,7 @@ $bookedServices = $bookedServices ?? $bookedServiceService->getAllBookedServices
 </style>
 </head>
 <body>
-<nav>
+<nav style="text-align: center;">
     <a href="/">Trang Chủ</a>
     <a href="/views/admin/managerUser.php">Users</a>
     <a href="/views/admin/managerService.php">Service</a>
@@ -221,7 +223,7 @@ $bookedServices = $bookedServices ?? $bookedServiceService->getAllBookedServices
         <button type="submit">Tìm kiếm</button>
     </form>
 
-    <h2>Danh sách dịch vụ đã đặt</h2>
+    <h2 style="text-align: center;">Danh sách dịch vụ đã đặt</h2>
     <?php if (empty($bookedServices)): ?>
         <p>Không tìm thấy dịch vụ!</p>
     <?php else: ?>
@@ -253,7 +255,7 @@ $bookedServices = $bookedServices ?? $bookedServiceService->getAllBookedServices
             </tbody>
         </table>
     <?php endif; ?>
-
+    <p style="text-align: center;"><a href="/views/admin/managerBookedService.php">Thêm Booked Service</a></p>
     <div class="form-section">
         <?php if (isset($editBookedService)) { ?>
             <h3>Sửa dịch vụ đã đặt</h3>
@@ -268,7 +270,7 @@ $bookedServices = $bookedServices ?? $bookedServiceService->getAllBookedServices
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <button type="submit">Cập nhật</button>
+                <button style="align-self: center;" type="submit">Cập nhật</button>
             </form>
         <?php } else { ?>
             <h3>Thêm dịch vụ đã đặt</h3>
@@ -280,7 +282,7 @@ $bookedServices = $bookedServices ?? $bookedServiceService->getAllBookedServices
                         <option value="<?= $s->getId() ?>"><?= htmlspecialchars($s->getServiceName()) ?></option>
                     <?php endforeach; ?>    
                 </select>
-                <button type="submit">Thêm</button>
+                <button style="align-self: center;" type="submit">Thêm</button>
             </form>
         <?php } ?>
     </div>

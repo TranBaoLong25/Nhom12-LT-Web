@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_room_id'])) {
     $deleteId = intval($_POST['delete_room_id']);
     $room = $bookedRoomService->findById($deleteId);
     if ($room && $room->getUserId() == $user_id) {
-        $bookedRoomService->delete($deleteId);
+        $bookedRoomService->deleteById($deleteId);
         header("Location: profile.php");
         exit;
     }
@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_service_id']))
         </div>
       <?php endif; ?>
     <?php else: ?>
-      <p>Bạn chưa đăng nhập. <a href="/views/login.php">Đăng nhập</a></p>
+      <p style="color: black;">Bạn chưa đăng nhập. <a href="/views/login.php">Đăng nhập</a></p>
     <?php endif; ?>
   </div>
 </div>

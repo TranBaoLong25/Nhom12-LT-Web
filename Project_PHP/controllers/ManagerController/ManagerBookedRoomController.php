@@ -3,124 +3,114 @@ include_once(__DIR__ . '/../../services/IBookedRoomService.php');
 include_once(__DIR__ . '/../../repositories/IBookedRoomRepository.php');
 include_once(__DIR__ . '/../../services/BookedRoomService.php');
 include_once(__DIR__ . '/../../repositories/BookedRoomRepository.php');
-include_once(__DIR__ . '/../../models/BookedRoom.php');
+include_once(__DIR__ . '/../../models/BookedRoom.php'); 
 
 class ManagerBookedRoomController {
     private $conn;
 
     public function __construct($conn) {
         $this->conn = $conn;
+    } 
+    
+    public function index() {
+        $this->showManagerBookedRoomPage();
     }
 
-    // Trang chính hiển thị danh sách người dùng
     public function showManagerBookedRoomPage() {
-        $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
-        $bookedRooms = $bookedRoomSer->findAll();
-        $newBookedRoom = new BookedRoom(null, '', '', '', '', '', '');
-        include(__DIR__ . '/../../views/admin/managerBookedRoom.php');
+        // Tránh render view nếu đã gửi header (thêm/sửa/xóa)
+        if (headers_sent()) {
+            return;
+        }
 
+        // Tạo service
+        $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn)); 
+
+        // Lấy kết quả tìm kiếm nếu có
+        if (isset($_SESSION['searchKeyword']) && $_SESSION['searchKeyword'] !== '') {
+            $bookedRooms = $bookedRoomSer->findByUserId($_SESSION['searchKeyword']);
+            unset($_SESSION['searchKeyword']);
+        } else {
+            $bookedRooms = $bookedRoomSer->getAllBookedRoom();
+        }
+
+        // Lấy dữ liệu edit nếu có
+        $editBookedRoom = $_SESSION['editBookedRoom'] ?? null;
+        unset($_SESSION['editBookedRoom']);
+
+        include(__DIR__ . '/../../views/admin/managerBookedRoom.php');
     }
+
     public function editBookedRoom($id) {
-    $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
-    $bookedRoom = $bookedRoomSer->findById($id);
+        $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
+        $bookedRoom = $bookedRoomSer->findById($id);
 
-    if ($bookedRoom) {
-        $editBookedRoom = $bookedRoom;
-        $bookedRooms = $bookedRoomSer->findAll();
-        include(__DIR__ . '/../../views/admin/managerBookedRoom.php');
-    } else {
-        echo "Không tìm phòng đặt.";
+        if ($bookedRoom) {
+            $_SESSION['editBookedRoom'] = $bookedRoom;
+            // ⚠️ Giữ nguyên theo yêu cầu
+            $this->showManagerBookedRoomPage();
+        } else {
+            echo "Không tìm thấy phòng đã đặt.";
+        }
     }
-}
-    public function editBookedRoom2($phone) {
-    $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
-    $bookedRoom = $bookedRoomSer->findByPhone($phone);
 
-    if ($bookedRoom) {
-        $editBookedRoom = $bookedRoom;
-        $bookedRooms = $bookedRoomSer->findAll();
-        include(__DIR__ . '/../../views/admin/managerBookedRoom.php');
-    } else {
-        echo "Không tìm phòng đặt.";
-    }
-}
-    // Thêm người dùng mới
     public function save() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $guest_name = $_POST['guest_name'];
-            $guest_phone = $_POST['guest_phone'];
-            $check_in_date  = $_POST['check_in_date'];
-            $check_out_date  = $_POST['check_out_date'];
-            $user_id  = $_POST['user_id'];
-            $homestay_id  = $_POST['homestay_id'];
+            $guest_name = $_POST['guest_name'] ?? '';
+            $guest_phone = $_POST['guest_phone'] ?? '';
+            $check_in_date = $_POST['check_in_date'] ?? '';
+            $check_out_date = $_POST['check_out_date'] ?? '';
+            $user_id = $_POST['user_id'] ?? '';
+            $homestay_id = $_POST['homestay_id'] ?? '';
 
             $bookedRoom = new BookedRoom(null, $guest_name, $guest_phone, $check_in_date, $check_out_date, $user_id, $homestay_id);
             $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
             $bookedRoomSer->save($bookedRoom);
 
-            header('Location: /index.php?controller=managerbookedroom');
+            // Không render nữa, chuyển hướng về trang chính
+            header('Location: /index.php?controller=managerBookedRoom');
             exit();
         }
     }
 
-    // Xóa người dùng
-    public function deleteBookedRoom($id) {
-        $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
-        $bookedRoomSer->deleteBookedRoom($phone);
-        header('Location: /index.php?controller=managerbookedroom');
-        exit();
-    }
-
-    // Sửa người dùng
     public function updateBookedRoom() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? null;
             $guest_name = $_POST['guest_name'] ?? '';
             $guest_phone = $_POST['guest_phone'] ?? '';
-            $check_in_date  = $_POST['check_in_date'] ?? '';
-            $check_out_date  = $_POST['check_out_date'] ?? '';
-            $user_id  = $_POST['user_id'] ?? '';
-            $homestay_id  = $_POST['homestay_id'] ?? '';
-            if ($id === null) {
-                echo "ID không được để trống";
-                return;
-            }
-            $updateBookedRoom = new BookedRoom(null, $guest_name, $guest_phone, $check_in_date, $check_out_date, $user_id, $homestay_id);
+            $check_in_date = $_POST['check_in_date'] ?? '';
+            $check_out_date = $_POST['check_out_date'] ?? '';
+            $user_id = $_POST['user_id'] ?? '';
+            $homestay_id = $_POST['homestay_id'] ?? '';
+
+            $bookedRoom = new BookedRoom($id, $guest_name, $guest_phone, $check_in_date, $check_out_date, $user_id, $homestay_id);
             $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
-            try {
-                $bookedRoomSer->updateBookedRoom($phone, $updateBookedRoom);
-                header('Location: /index.php?controller=managerbookedroom');
-                exit();
-            } catch(Exception $e) {
-                echo "Lỗi: " . $e->getMessage();
-            }
-        } else {
-            echo "Yêu cầu không hợp lệ";
+            $bookedRoomSer->updateBookedRoom($id, $bookedRoom);
+
+            header('Location: /index.php?controller=managerBookedRoom');
+            exit();
         }
     }
-
-    // Tìm kiếm người dùng
-    public function searchBookedRoom() {
-        if (isset($_GET['keyword'])) {
-            $keyword = $_GET['keyword'];
-            $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
-            try {
-                $bookedRoom = $bookedRoomSer->findByPhone($keyword);
-                $bookedRooms = $bookedRoom ? [$bookedRoom] : [];
-            } catch(Exception $e) {
-                $users = [];
-            }
-
-            $newBookedRoom = new BookedRoom(null, '', '', '', '', '', '');
-            include(__DIR__ . '/../../views/admin/managerbookedroom.php');
-        } else {
-            echo "Thiếu từ khóa tìm kiếm.";
-        }
-    }
-
-    public function findByPhone($phone) {
+    public function deleteById($id) {
         $bookedRoomSer = new BookedRoomService(new BookedRoomRepository($this->conn));
-        return $bookedRoomSer->findByPhone($phone);
+        $bookedRoomSer->deleteById($id);
+
+        if (!headers_sent()) {
+            header('Location: /index.php?controller=managerBookedRoom');
+            exit();
+        } else {
+            // fallback: tự render lại nhưng rõ ràng (không gây lặp)
+            $_SESSION['deleted'] = true;
+            echo "<script>window.location.href = '/index.php?controller=managerBookedRoom';</script>";
+            exit();
+        }
+    }
+
+    public function searchBookedRoom() {
+        $keyword = $_GET['keyword'] ?? '';
+        $_SESSION['searchKeyword'] = $keyword;
+
+        // Chuyển hướng lại trang chính
+        header('Location: /index.php?controller=managerBookedRoom');
+        exit();
     }
 }
-?>

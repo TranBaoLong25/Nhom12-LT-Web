@@ -143,6 +143,8 @@ $editService = $editService ?? null;
         text-decoration: underline;
     }
     .service-form {
+        text-align: center;
+        margin: 0 auto; 
         margin-top: 35px;
         padding: 18px 22px 12px 22px;
         background: #f5faff;
@@ -194,7 +196,7 @@ $editService = $editService ?? null;
 </style>
 </head>
 <body>
-<nav>
+<nav style="text-align: center;">
     <a href="/">Trang Chủ</a>
     <a href="/views/admin/managerUser.php">User</a>
     <a href="/views/admin/managerService.php">Service</a>
@@ -202,7 +204,7 @@ $editService = $editService ?? null;
     <a href="/views/admin/managerBookedRoom.php">BookedRoom</a>
     <a href="/views/admin/managerBookedService.php">BookedService</a>
 </nav>
-
+    
 <div class="container">
     <form method="GET" action="/index.php">
         <input type="hidden" name="controller" value="managerService">
@@ -211,7 +213,7 @@ $editService = $editService ?? null;
         <button type="submit">Tìm kiếm</button>
     </form>
 
-    <h2>Danh sách dịch vụ</h2>
+    <h2 style="text-align: center;">Danh sách dịch vụ</h2>
     <?php if (empty($services)): ?>
         <p>Không tìm thấy dịch vụ!</p>
     <?php else: ?>
@@ -241,7 +243,8 @@ $editService = $editService ?? null;
             </tbody>
         </table>
     <?php endif; ?>
-
+                    
+    <p style="text-align: center;"><a href="/views/admin/managerService.php">Thêm dịch vụ</a></p>
     <div class="service-form">
         <?php if ($editService): ?>
             <h3>Sửa dịch vụ</h3>
@@ -250,7 +253,7 @@ $editService = $editService ?? null;
                 <input type="text" name="service_name" value="<?= $editService->getServiceName() ?>" required>
                 <textarea name="service_description" required><?= $editService->getServiceDescription() ?></textarea>
                 <input type="number" name="service_price" value="<?= $editService->getServicePrice() ?>" required>
-                <button type="submit">Cập nhật</button>
+                <button style="align-self: center;" type="submit">Cập nhật</button>
             </form>
         <?php else: ?>
             <h3>Thêm dịch vụ</h3>
@@ -258,7 +261,7 @@ $editService = $editService ?? null;
                 <input type="text" name="service_name" placeholder="Tên dịch vụ" required>
                 <textarea name="service_description" placeholder="Mô tả dịch vụ" required></textarea>
                 <input type="number" name="service_price" placeholder="Giá" required>
-                <button type="submit">Thêm</button>
+                <button style="align-self: center;" type="submit">Thêm</button>
             </form>
         <?php endif; ?>
     </div>

@@ -8,6 +8,13 @@ class BookedServiceRepository implements IBookedServiceRepository {
     }
 
     public function save(BookedService $bookedService) {
+        $now = new DateTime();
+        $time = new DateTime($bookedService->getTime());
+
+        if ($now > $time) {
+            throw new Exception("Ngày đặt dịch vụ phải sau hoặc là ngày hôm nay.");
+        }
+        else{
         try {
             $stmt = $this->conn->prepare("INSERT INTO booked_service (time, user_id, service_id) VALUES (?, ?, ?)");
             return $stmt->execute([
@@ -20,6 +27,7 @@ class BookedServiceRepository implements IBookedServiceRepository {
             return false;
         }
         return $result;
+    }
     }
     public function findById($id) {
         $stmt = $this->conn->prepare("SELECT * FROM booked_service WHERE id = ?");
@@ -88,9 +96,10 @@ class BookedServiceRepository implements IBookedServiceRepository {
             );
         }
         if(empty($result)){
-            throw new Exception("UserId: $user_id chưa đặt dịch vụ nào.");
+            return null;
         }
-        return $result; 
+        else{ return $result; }
+       
     }
 }
 ?>

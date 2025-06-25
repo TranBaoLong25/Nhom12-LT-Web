@@ -16,6 +16,7 @@ class ManagerBookedServiceController {
     public function __construct($conn) {
         $this->conn = $conn;
     }
+
     public function index() {
         $this->showManagerBookedServicePage();
     }
@@ -32,27 +33,28 @@ class ManagerBookedServiceController {
         }
 
         $editBookedService = $_SESSION['editBookedService'] ?? null;
-        include(__DIR__ . '/../../views/admin/managerBookedService.php'); 
+        unset($_SESSION['editBookedService']);
+
+        include(__DIR__ . '/../../views/admin/managerBookedService.php');
+        exit(); 
     }
 
     public function editBookedService($id) {
         $bookedServiceSer = new BookedServiceService(new BookedServiceRepository($this->conn));
         $bookedService = $bookedServiceSer->findById($id);
-        
+
         if ($bookedService) {
             $_SESSION['editBookedService'] = $bookedService;
-            $this->showManagerBookedServicePage();
-            exit();
-        } else {
-            echo "Không tìm thấy dịch vụ đã đặt.";
         }
+        $this->showManagerBookedServicePage();
     }
 
     public function save() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $time = $_POST['time'] ?? '';
-            $user_id  = $_POST['user_id'] ?? '';
-            $service_id  = $_POST['service_id'] ?? '';
+            $user_id = $_POST['user_id'] ?? '';
+            $service_id = $_POST['service_id'] ?? '';
+
             $bookedService = new BookedService(null, $time, $user_id, $service_id);
             $bookedServiceSer = new BookedServiceService(new BookedServiceRepository($this->conn));
             $bookedServiceSer->save($bookedService);
@@ -66,8 +68,8 @@ class ManagerBookedServiceController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? null;
             $time = $_POST['time'] ?? '';
-            $user_id  = $_POST['user_id'] ?? '';
-            $service_id  = $_POST['service_id'] ?? '';
+            $user_id = $_POST['user_id'] ?? '';
+            $service_id = $_POST['service_id'] ?? '';
 
             if (!$id) {
                 echo "ID không hợp lệ!";
@@ -76,6 +78,7 @@ class ManagerBookedServiceController {
 
             $updateBookedService = new BookedService($id, $time, $user_id, $service_id);
             $bookedServiceSer = new BookedServiceService(new BookedServiceRepository($this->conn));
+
             try {
                 $bookedServiceSer->updateBookedService($id, $updateBookedService);
                 header('Location: /index.php?controller=managerbookedService');
@@ -89,24 +92,34 @@ class ManagerBookedServiceController {
     public function deleteBookedService($id) {
         $bookedServiceSer = new BookedServiceService(new BookedServiceRepository($this->conn));
         $bookedServiceSer->deleteBookedService($id);
+
         header('Location: /index.php?controller=managerbookedService');
         exit();
     }
+
     public function searchBookedService() {
         $keyword = $_GET['keyword'] ?? '';
         $bookedServiceSer = new BookedServiceService(new BookedServiceRepository($this->conn));
 
         try {
-            $bookedServices = (!empty($keyword)) 
-                ? $bookedServiceSer->findByUserId($keyword) 
+            $bookedServices = !empty($keyword)
+                ? $bookedServiceSer->findByUserId($keyword)
                 : $bookedServiceSer->getAllBookedServices();
         } catch (Exception $e) {
-            $bookedServices = []; // Không tìm thấy => hiện thông báo trong view
+            $bookedServices = [];
+        }
+
+        $serviceSer = new ServiceService(new ServiceRepository($this->conn));
+        $services = $serviceSer->getAllServices();
+        $serviceMap = [];
+        foreach ($services as $s) {
+            $serviceMap[$s->getId()] = $s->getServiceName();
         }
 
         $editBookedService = $_SESSION['editBookedService'] ?? null;
-        include(__DIR__ . '/../../views/admin/managerBookedService.php');
         unset($_SESSION['editBookedService']);
+
+        include(__DIR__ . '/../../views/admin/managerBookedService.php');
         exit();
     }
 }

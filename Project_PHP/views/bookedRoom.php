@@ -4,40 +4,25 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 include_once('./fragments/header.php');
 require_once __DIR__ . '/../models/BookedRoom.php';
+require_once __DIR__ . '/../models/HomeStay.php';
 require_once __DIR__ . '/../repositories/IBookedRoomRepository.php';
-require_once __DIR__ . '/../repositories/BookedRoomRepository.php';
 require_once __DIR__ . '/../services/IBookedRoomService.php';
+require_once __DIR__ . '/../repositories/IHomeStayRepository.php';
+require_once __DIR__ . '/../services/IHomeStayService.php';
+require_once __DIR__ . '/../repositories/BookedRoomRepository.php';
 require_once __DIR__ . '/../services/BookedRoomService.php';
-require_once __DIR__ . '/../connection.php';
-
+require_once __DIR__ . '/../repositories/HomeStayRepository.php';
+require_once __DIR__ . '/../services/HomeStayService.php';
+require_once __DIR__ . '/../connection.php'; 
 $conn = Database::getConnection();
-$bookedRoomRepository = new BookedRoomRepository($conn);
-$bookedRoomService = new BookedRoomService($bookedRoomRepository);
+$bookedRoomService = new BookedRoomService(new BookedRoomRepository($conn));
+$homeStayService = new HomeStayService(new HomeStayRepository($conn));
 
-// LẤY DANH SÁCH PHÒNG ĐỘNG TỪ DATABASE
-$rooms = [];
-try {
-    $stmt = $conn->query("SELECT * FROM homestay");
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $rooms[] = [
-            'id' => $row['id'],
-            'name' => $row['room_type'],
-            'type' => $row['room_type'],
-            'price' => $row['room_price'],
-            'image' => '/assets/images/img' . $row['id'] . '.jpg',
-            'description' => '',
-        ];
-    }
-} catch (Exception $e) {
-    $rooms = [];
-}
+$rooms = $homeStayService->getAllHomeStay();
 
-// --- Logic xử lý đặt phòng khi form được gửi (POST request) ---
-$booking_status = ''; // 'success', 'error', or ''
-$booking_details = ''; // Chứa các thông tin chi tiết để hiển thị trong modal
-
+$booking_status = '';
+$booking_details = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Nếu chưa đăng nhập thì chuyển về trang đăng nhập
     if (empty($_SESSION['user']['id']) && empty($_SESSION['user_id'])) {
         header('Location: /views/login.php');
         exit;
@@ -51,249 +36,204 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phoneNumber = htmlspecialchars($_POST['phone_number'] ?? '');
     $checkinDate = htmlspecialchars($_POST['checkin_date'] ?? '');
     $checkoutDate = htmlspecialchars($_POST['checkout_date'] ?? '');
+    $homestayId = intval($_POST['homestay_id'] ?? 0);
 
-    // Tìm homestay_id tương ứng với roomName để lưu vào DB
-    $foundHomestayId = null;
-    foreach ($rooms as $r) {
-        if ($r['name'] === $roomName) {
-            $foundHomestayId = $r['id']; 
-            break;
-        }
-    }
-
-    // Lấy ngày hôm nay và ngày mai từ múi giờ trình duyệt (gửi lên form) sẽ tốt hơn, 
-    // nhưng ở đây ta vẫn check phía backend bằng múi giờ server.
     $today = date('Y-m-d');
-    $tomorrow = date('Y-m-d', strtotime('+1 day'));
 
-    if (empty($roomName) || $roomPrice === false || empty($fullName) || empty($phoneNumber) || empty($checkinDate) || empty($checkoutDate) || $foundHomestayId === null) {
+    if (!$roomName || $roomPrice === false || !$fullName || !$phoneNumber || !$checkinDate || !$checkoutDate || $homestayId === 0) {
         $booking_status = 'error';
-        $booking_details = 'Vui lòng điền đầy đủ các trường thông tin và đảm bảo chọn phòng hợp lệ.';
-    } else if ($checkinDate !== $today) {
+        $booking_details = 'Vui lòng điền đầy đủ thông tin và chọn phòng hợp lệ.';
+    } elseif ($checkinDate < $today) {
         $booking_status = 'error';
-        $booking_details = 'Ngày nhận phòng (check-in) phải là hôm nay (' . date('d/m/Y') . ').';
-    } else if ($checkoutDate !== $tomorrow) {
+        $booking_details = 'Ngày nhận phòng phải từ hôm nay trở đi.';
+    } elseif ($checkoutDate <= $checkinDate) {
         $booking_status = 'error';
-        $booking_details = 'Ngày trả phòng (check-out) phải là ngày mai (' . date('d/m/Y', strtotime('+1 day')) . ').';
-    } else if (strtotime($checkinDate) >= strtotime($checkoutDate)) {
-        $booking_status = 'error';
-        $booking_details = 'Ngày nhận phòng phải trước ngày trả phòng.';
+        $booking_details = 'Ngày trả phòng phải sau ngày nhận phòng.';
     } else {
-        $newBookedRoom = new BookedRoom(
-            null,
-            $fullName,
-            $phoneNumber,
-            $checkinDate,
-            $checkoutDate,
-            $current_user_id,
-            $foundHomestayId
-        );
-        $bookedRoomService->save($newBookedRoom);
+        try {
+            $newBookedRoom = new BookedRoom(
+                null,
+                $fullName,
+                $phoneNumber,
+                $checkinDate,
+                $checkoutDate,
+                $current_user_id,
+                $homestayId
+            );
+            $bookedRoomService->save($newBookedRoom);
 
-        if ($newBookedRoom->getId()) {
             $booking_status = 'success';
-            $booking_details = '
-                <p><strong>Phòng:</strong> ' . $roomName . '</p>
-                <p><strong>Giá:</strong> ' . number_format($roomPrice, 0, ',', '.') . 'đ</p>
-                <p><strong>Họ tên:</strong> ' . $fullName . '</p>
-                <p><strong>Số điện thoại:</strong> ' . $phoneNumber . '</p>
-                <p><strong>Ngày nhận phòng:</strong> ' . $checkinDate . '</p>
-                <p><strong>Ngày trả phòng:</strong> ' . $checkoutDate . '</p>
-                <p><strong>Mã đặt phòng:</strong> ' . $newBookedRoom->getId() . '</p>
-            ';
-        } else {
+            $booking_details = "
+                <p><strong>Phòng:</strong> {$roomName}</p>
+                <p><strong>Giá:</strong> " . number_format($roomPrice, 0, ',', '.') . "đ</p>
+                <p><strong>Khách:</strong> {$fullName}</p>
+                <p><strong>SĐT:</strong> {$phoneNumber}</p>
+                <p><strong>Nhận phòng:</strong> {$checkinDate}</p>
+                <p><strong>Trả phòng:</strong> {$checkoutDate}</p>
+            ";
+        } catch (Exception $e) {
             $booking_status = 'error';
-            $booking_details = 'Đã xảy ra lỗi khi lưu đặt phòng vào hệ thống. Vui lòng thử lại.';
+            $booking_details = $e->getMessage();
         }
     }
 }
 ?>
 
 <link rel="stylesheet" href="/assets/css/bookedroom.css">
-<link rel="stylesheet" href="/assets/css/index.css">
 <link rel="stylesheet" href="/assets/css/header.css">
 
-
 <div class="container">
-    <h1>Danh sách phòng có sẵn để đặt</h1>
-
-    <?php if ($booking_status === 'success'): ?>
-        <div id="booking-success-modal" class="success-modal">
-            <div class="success-content">
-                <span class="close-success-btn" onclick="closeSuccessModal()">&times;</span>
-                <h2>🎉 Đặt phòng thành công! 🎉</h2>
-                <div class="booking-details-summary">
-                    <?= $booking_details ?>
-                </div>
-                <button class="ok-success-btn" onclick="closeSuccessModal()">Đóng</button>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($booking_status === 'error'): ?>
-        <div id="booking-error-modal" class="error-modal">
-            <div class="error-content">
-                <span class="close-error-btn" onclick="closeErrorModal()">&times;</span>
-                <h2>❌ Lỗi đặt phòng! ❌</h2>
-                <div class="booking-details-summary error-details">
-                    <p><?= $booking_details ?></p> </div>
-                <button class="ok-error-btn" onclick="closeErrorModal()">Đóng</button>
-            </div>
-        </div>
-    <?php endif; ?>
-
+    <h1>Đặt phòng Homestay</h1>
     <div class="filter-bar">
-        <select id="room-type">
-            <option value="">Tất cả loại phòng</option>
-            <option value="Standard">Standard</option>
-            <option value="Deluxe">Deluxe</option>
-            <option value="Suite">Suite</option>
-            <option value="VIP">VIP</option>
-        </select>
+    <select id="room-type">
+        <option value="">Tất cả loại phòng</option>
+        <option value="standardRoom">StandardRoom</option>
+        <option value="DeluxeRoom">DeluxeRoom</option>
+        <option value="SuiteRoom">SuiteRoom</option>
+        <option value="DormitoryRoom">DormitoryRoom</option>
+        <option value="Bungalow">Bungalow</option>
+    </select>
+    <select id="location-filter">
+        <option value="">Tất cả địa điểm</option>
+        <option value="1st">Tầng 1</option>
+        <option value="2st">Tầng 2</option>
+        <option value="3st">Tầng 3</option>
+        <option value="4st">Tầng 4</option> 
+    </select>
 
-        <select id="price-filter">
-            <option value="">Tất cả mức giá</option>
-            <option value="500000">500.000đ</option>
-            <option value="800000">800.000đ</option>
-            <option value="1000000">1.000.000đ</option>
-            <option value="1500000">1.500.000đ</option>
-            <option value="2000000">2.000.000đ</option>
-        </select>
+    <select id="price-filter">
+        <option value="">Tất cả mức giá</option>
+        <option value="500000">Dưới 500.000đ</option>
+        <option value="1000000">Dưới 1.000.000đ</option>
+        <option value="1500000">Dưới 1.500.000đ</option>
+        <option value="2000000">Dưới 2.000.000đ</option>
+    </select>
 
-        <button onclick="filterRooms()">Tìm kiếm</button>
-    </div>
-
-    <div class="room-list" id="room-list">
-        <?php foreach ($rooms as $room): ?>
-            <div class="room" data-price="<?= htmlspecialchars($room['price']) ?>" data-type="<?= htmlspecialchars($room['type']) ?>">
-                <img src="<?= htmlspecialchars($room['image']) ?>" alt="<?= htmlspecialchars($room['name']) ?>">
-                <h3><?= htmlspecialchars($room['name']) ?></h3>
-                <p>Loại: <?= htmlspecialchars($room['type']) ?></p>
-                <p>Giá: <?= number_format($room['price'], 0, ',', '.') ?>đ / đêm</p>
-                <button onclick="handleBookingClick('<?= htmlspecialchars($room['name']) ?>', <?= htmlspecialchars($room['price']) ?>, <?= htmlspecialchars($room['id']) ?>)">Đặt phòng</button>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-    <div class="booking-form" id="booking-form">
-        <div class="form-content">
-            <h2>Thông tin đặt phòng</h2>
-            <p id="selected-room"></p>
-            <form action="" method="POST">
-                <input type="hidden" id="booking-room-name" name="room_name">
-                <input type="hidden" id="booking-room-price" name="room_price">
-                <input type="hidden" id="booking-homestay-id" name="homestay_id">
-
-                <input type="text" name="full_name" placeholder="Họ tên" required>
-                <input type="tel" name="phone_number" placeholder="Số điện thoại" required>
-                <label for="checkin_date">Ngày nhận phòng:</label>
-                <input type="date" id="checkin_date" name="checkin_date" required>
-                <label for="checkout_date">Ngày trả phòng:</label>
-                <input type="date" id="checkout_date" name="checkout_date" required>
-                <button type="submit">Xác nhận đặt</button>
-                <button type="button" onclick="closeBookingForm()">Hủy</button>
-            </form>
-        </div>
-    </div>
-
-    <hr>
+    <button onclick="filterRooms()">Lọc phòng</button>
 </div>
 
+    <div class="room-list" id="room-list">
+    <?php foreach ($rooms as $room): ?>
+        <?php    
+                $imageUrls = $room->getImage();
+                $imageUrl = !empty($imageUrls) ? "/{$imageUrls[0]}" : '/assets/images/img1.jpg';
+
+        ?>
+        <div class="room-item" 
+            data-type="<?= htmlspecialchars($room->getRoomType()) ?>" 
+            data-price="<?= htmlspecialchars($room->getRoomPrice()) ?>"
+            data-location="<?= htmlspecialchars($room->getLocation()) ?>">
+            <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($room->getRoomType()) ?>">
+            <h3><?= htmlspecialchars($room->getRoomType()) ?></h3> 
+            <p>Địa điểm: <?= htmlspecialchars($room->getLocation()) ?></p>
+            <p>Giá: <?= number_format($room->getRoomPrice(), 0, ',', '.') ?>đ / đêm</p>
+            <button onclick="openBookingForm(`<?= addslashes($room->getRoomType()) ?>`, <?= $room->getRoomPrice() ?>, <?= $room->getId() ?>)">Đặt phòng</button>
+        </div>
+    <?php endforeach; ?>
+</div>
+
+</div>
+
+<!-- Booking Form Modal -->
+<div class="booking-form" id="booking-form">
+    <div class="form-content">
+        <h2>Thông tin đặt phòng</h2>
+        <form method="POST">
+            <input type="hidden" name="room_name" id="room_name">
+            <input type="hidden" name="room_price" id="room_price">
+            <input type="hidden" name="homestay_id" id="homestay_id">
+
+            <label>Họ tên:</label>
+            <input type="text" name="full_name" required>
+
+            <label>Số điện thoại:</label>
+            <input type="tel" name="phone_number" id="phone_number" required pattern="^0[0-9]{9}$" maxlength="10" title="SĐT phải bắt đầu bằng số 0 và có 10 chữ số" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+
+            <label>Ngày nhận phòng:</label>
+            <input type="date" name="checkin_date" id="checkin_date" required>
+
+            <label>Ngày trả phòng:</label>
+            <input type="date" name="checkout_date" id="checkout_date" required>
+
+            <button type="submit">Xác nhận đặt</button>
+            <button type="button" onclick="closeBookingForm()">Hủy</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Thành Công / Lỗi -->
+<?php if ($booking_status === 'success'): ?>
+    <div class="success-modal show">
+        <div class="success-content">
+            <span class="close-success-btn" onclick="closeSuccessModal()">&times;</span>
+            <h2>🎉 Đặt phòng thành công!</h2>
+            <div class="booking-details-summary"><?= $booking_details ?></div>
+            <button class="ok-success-btn" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+<?php elseif ($booking_status === 'error'): ?>
+    <div class="error-modal show">
+        <div class="error-content">
+            <span class="close-error-btn" onclick="closeErrorModal()">&times;</span>
+            <h2>❌ Lỗi đặt phòng</h2>
+            <div class="booking-details-summary"><?= $booking_details ?></div>
+            <button class="ok-error-btn" onclick="closeErrorModal()">OK</button>
+        </div>
+    </div>
+<?php endif; ?>
+
 <script>
-    // Luôn mở form đặt phòng, không kiểm tra login phía client
-    function handleBookingClick(roomName, roomPrice, homestayId) {
-        openBookingForm(roomName, roomPrice, homestayId);
-    }
+function openBookingForm(name, price, id) {
+    document.getElementById('room_name').value = name;
+    document.getElementById('room_price').value = price;
+    document.getElementById('homestay_id').value = id;
 
-    function openBookingForm(roomName, roomPrice, homestayId) {
-        document.getElementById('selected-room').innerText = `Bạn đã chọn: ${roomName} - Giá: ${roomPrice.toLocaleString('vi-VN')}đ / đêm`;
-        document.getElementById('booking-room-name').value = roomName;
-        document.getElementById('booking-room-price').value = roomPrice;
-        document.getElementById('booking-homestay-id').value = homestayId;
-        document.getElementById('booking-form').classList.add('show');
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
 
-        // Gán mặc định ngày hôm nay cho check-in, ngày mai cho check-out khi mở form
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('checkin_date').value = today.toISOString().split('T')[0];
+    document.getElementById('checkout_date').value = tomorrow.toISOString().split('T')[0];
 
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        const yyyy2 = tomorrow.getFullYear();
-        const mm2 = String(tomorrow.getMonth() + 1).padStart(2, '0');
-        const dd2 = String(tomorrow.getDate()).padStart(2, '0');
-        const tomorrowStr = `${yyyy2}-${mm2}-${dd2}`;
+    document.getElementById('booking-form').classList.add('show');
+}
 
-        document.getElementById('checkin_date').value = todayStr;
-        document.getElementById('checkout_date').value = tomorrowStr;
-    }
+function closeBookingForm() {
+    document.getElementById('booking-form').classList.remove('show');
+}
 
-    function closeBookingForm() {
-        document.getElementById('booking-form').classList.remove('show');
-    }
+function closeSuccessModal() {
+    document.querySelector('.success-modal')?.classList.remove('show');
+}
 
-    function openSuccessModal() {
-        const modal = document.getElementById('booking-success-modal');
-        if (modal) {
-            modal.classList.add('show');
+function closeErrorModal() {
+    document.querySelector('.error-modal')?.classList.remove('show');
+}
+function filterRooms() {
+    const roomType = document.getElementById('room-type').value;
+    const priceFilter = parseInt(document.getElementById('price-filter').value);
+    const locationFilter = document.getElementById('location-filter').value;
+    
+    const roomList = document.getElementById('room-list');
+    const rooms = roomList.getElementsByClassName('room-item');
+
+    for (let i = 0; i < rooms.length; i++) {
+        const room = rooms[i];
+        const type = room.getAttribute('data-type');
+        const price = parseInt(room.getAttribute('data-price'));
+        const location = room.getAttribute('data-location');
+
+        const matchType = roomType === '' || type === roomType;
+        const matchPrice = isNaN(priceFilter) || price <= priceFilter;
+        const matchLocation = locationFilter === '' || location === locationFilter;
+
+        if (matchType && matchPrice && matchLocation) {
+            room.style.display = '';
+        } else {
+            room.style.display = 'none';
         }
     }
+}
 
-    function closeSuccessModal() {
-        const modal = document.getElementById('booking-success-modal');
-        if (modal) {
-            modal.classList.remove('show');
-        }
-    }
 
-    function openErrorModal() {
-        const modal = document.getElementById('booking-error-modal');
-        if (modal) {
-            modal.classList.add('show');
-        }
-    }
-
-    function closeErrorModal() {
-        const modal = document.getElementById('booking-error-modal');
-        if (modal) {
-            modal.classList.remove('show');
-        }
-    }
-
-    function filterRooms() {
-        const roomType = document.getElementById('room-type').value;
-        const priceFilter = document.getElementById('price-filter').value;
-        const roomList = document.getElementById('room-list');
-        const rooms = roomList.getElementsByClassName('room');
-
-        for (let i = 0; i < rooms.length; i++) {
-            const room = rooms[i];
-            const roomDataType = room.getAttribute('data-type');
-            const roomDataPrice = parseInt(room.getAttribute('data-price'));
-
-            let typeMatch = (roomType === '' || roomDataType === roomType);
-            let priceMatch = true;
-
-            if (priceFilter !== '') {
-                const filterPrice = parseInt(priceFilter);
-                priceMatch = (roomDataPrice <= filterPrice);
-            }
-
-            if (typeMatch && priceMatch) {
-                room.style.display = '';
-            } else {
-                room.style.display = 'none';
-            }
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        <?php if ($booking_status === 'success'): ?>
-            openSuccessModal();
-        <?php elseif ($booking_status === 'error'): ?>
-            openErrorModal();
-        <?php endif; ?>
-    });
 </script>

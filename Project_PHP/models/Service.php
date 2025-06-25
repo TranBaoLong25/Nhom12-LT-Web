@@ -8,7 +8,6 @@ class Service {
     public static function createEmptyService() {
         return new Service(null, null, null, null);
     }
-
     public function __construct($id, $service_name, $service_description, $service_price) {
         $this->id = $id;
         $this->service_name = $service_name;

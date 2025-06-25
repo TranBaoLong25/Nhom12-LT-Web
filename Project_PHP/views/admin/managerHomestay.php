@@ -1,28 +1,29 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header('Location: /views/login.php');
-    exit;
-}
-
-require_once(__DIR__ . '/../../connection.php');
 require_once(__DIR__ . '/../../models/HomeStay.php');
+require_once(__DIR__ . '/../../models/Location.php');
+require_once(__DIR__ . '/../../models/RoomType.php');
+require_once(__DIR__ . '/../../connection.php');
 require_once(__DIR__ . '/../../repositories/IHomeStayRepository.php');
 require_once(__DIR__ . '/../../repositories/HomeStayRepository.php');
 require_once(__DIR__ . '/../../services/IHomeStayService.php');
 require_once(__DIR__ . '/../../services/HomeStayService.php');
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 $conn = Database::getConnection();
 $homestayRepository = new HomeStayRepository($conn);
 $homestayService = new HomeStayService($homestayRepository);
 
-// Nếu có biến $editHomestay được controller truyền vào thì không gọi getAll nữa
+$editHomestay = null;
+if (isset($_SESSION['editHomestayId'])) {
+    $editHomestay = $homestayService->findById($_SESSION['editHomestayId']);
+    unset($_SESSION['editHomestayId']);
+}
+
 $homestays = $homestays ?? $homestayService->getAllHomeStay();
 ?>
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -51,7 +52,7 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         border-radius: 6px;
         transition: background 0.2s;
     }
-    nav a:hover, nav a:focus {
+    nav a:hover {
         background: #0050a7;
         color: #fff;
     }
@@ -74,7 +75,8 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         align-items: center;
         gap: 10px;
     }
-    form input[type="text"], form input[type="number"] {
+    form input[type="text"], form input[type="number"],
+    .homestay-form select {
         padding: 7px 12px;
         font-size: 15px;
         border: 1px solid #c0d3e0;
@@ -83,7 +85,7 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         transition: border .2s;
         outline: none;
     }
-    form input[type="text"]:focus, form input[type="number"]:focus {
+    form input:focus, .homestay-form select:focus {
         border: 1.5px solid #4096ee;
     }
     form button {
@@ -144,15 +146,14 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         text-decoration: underline;
     }
     .homestay-form {
+        text-align: center;
+        margin: 0 auto; 
         margin-top: 35px;
         padding: 18px 22px 12px 22px;
         background: #f5faff;
         border-radius: 10px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         max-width: 450px;
-    }
-    .homestay-form h3 {
-        margin-top: 0;
     }
     .homestay-form form {
         flex-direction: column;
@@ -163,7 +164,8 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         width: 100%;
     }
     .homestay-form input[type="text"],
-    .homestay-form input[type="number"] {
+    .homestay-form input[type="number"],
+    .homestay-form select {
         font-size: 15px;
         padding: 7px 12px;
         border: 1px solid #c0d3e0;
@@ -201,26 +203,10 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         object-fit: cover;
         background: #e6f0fa;
     }
-    @media (max-width: 700px) {
-        .container {
-            padding: 15px 4vw;
-        }
-        .homestay-form {
-            padding: 12px 8px;
-        }
-        th, td {
-            font-size: 14px;
-            padding: 8px 4px;
-        }
-        td img {
-            max-width: 60px;
-            max-height: 38px;
-        }
-    }
 </style>
 </head>
 <body>
-<nav>
+<nav style="text-align: center;">
     <a href="/">Trang Chủ</a>
     <a href="/views/admin/managerUser.php">Users</a>
     <a href="/views/admin/managerService.php">Service</a>
@@ -237,11 +223,11 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
         <button type="submit">Tìm kiếm</button>
     </form>
 
-    <h2>Danh sách Homestay</h2>
+    <h2 style="text-align: center;">Danh sách Homestay</h2>
     <?php if (empty($homestays)): ?>
         <p>Không tìm thấy homestay!</p>
     <?php else: ?>
-        <table>
+        <table border="1" cellpadding="5">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -267,36 +253,58 @@ $homestays = $homestays ?? $homestayService->getAllHomeStay();
                             <?php endforeach; ?>
                         </td>
                         <td>
-                            <a href="/index.php?controller=managerHomestay&action=editHomestay&id=<?= $homestay->getId() ?>">Sửa</a> |
-                            <a href="/index.php?controller=managerHomestay&action=deleteHomestay&id=<?= $homestay->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
+                            <a href="/index.php?controller=managerHomestay&action=editHomeStay&id=<?= $homestay->getId() ?>">Sửa</a> |
+                            <a href="/index.php?controller=managerHomestay&action=deleteHomeStay&id=<?= $homestay->getId() ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     <?php endif; ?>
-
+    <p style="text-align: center;"><a href="/views/admin/managerHomestay.php">Thêm HomeStay</a></p>
     <div class="homestay-form">
         <?php if (isset($editHomestay)) { ?>
             <h3>Sửa Homestay</h3>
-            <form action="/index.php?controller=managerHomestay&action=updateHomestay" method="POST" enctype="multipart/form-data">
+            <form action="/index.php?controller=managerHomestay&action=updateHomeStay" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<?= $editHomestay->getId() ?>">
-                <input type="text" name="room_type" value="<?= $editHomestay->getRoomType() ?>" required>
-                <input type="text" name="location" value="<?= $editHomestay->getLocation() ?>" required>
-                <input type="number" name="room_price" value="<?= $editHomestay->getRoomPrice() ?>" required>
+                <label>Loại phòng:</label>
+                <select name="room_type" required>
+                    <?php foreach (RoomType::cases() as $type): ?>
+                        <option value="<?= $type->value ?>" <?= $editHomestay->getRoomType() === $type->value ? 'selected' : '' ?>><?= $type->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <label>Vị trí:</label>
+                <select name="location" required>
+                    <?php foreach (Location::cases() as $loc): ?>
+                        <option value="<?= $loc->value ?>" <?= $editHomestay->getLocation() === $loc->value ? 'selected' : '' ?>><?= $loc->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <label>Giá phòng (VNĐ):</label>
+                <input type="number" name="room_price" placeholder="Ví dụ: 500000" required>
                 <label>Đã đặt: <input type="checkbox" name="booked" <?= $editHomestay->getBooked() ? 'checked' : '' ?>></label>
                 <label>Ảnh mới: <input type="file" name="images[]" multiple></label>
-                <button type="submit">Cập nhật</button>
+                <button style="align-self: center;" type="submit">Cập nhật</button>
             </form>
         <?php } else { ?>
             <h3>Thêm Homestay</h3>
             <form action="/index.php?controller=managerHomestay&action=save" method="POST" enctype="multipart/form-data">
-                <input type="text" name="room_type" placeholder="Loại phòng" required>
-                <input type="text" name="location" placeholder="Vị trí" required>
-                <input type="number" name="room_price" placeholder="Giá phòng" required>
+                <label>Loại phòng:</label>
+                <select name="room_type" required>
+                    <?php foreach (RoomType::cases() as $type): ?>
+                        <option value="<?= $type->value ?>"><?= $type->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <label>Vị trí:</label>
+                <select name="location" required>
+                    <?php foreach (Location::cases() as $loc): ?>
+                        <option value="<?= $loc->value ?>"><?= $loc->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <label>Giá phòng (VNĐ):</label>
+                <input type="number" name="room_price" placeholder="Ví dụ: 500000" required>
                 <label>Đã đặt: <input type="checkbox" name="booked"></label>
                 <label>Ảnh: <input type="file" name="images[]" multiple></label>
-                <button type="submit">Thêm</button>
+                <button style="align-self: center;" type="submit">Thêm</button>
             </form>
         <?php } ?>
     </div>

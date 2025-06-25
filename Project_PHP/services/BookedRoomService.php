@@ -6,36 +6,29 @@ class BookedRoomService implements IBookedRoomService {
     public function __construct(IBookedRoomRepository $repository) {
         $this->repository = $repository;
     }
-
-    public function findById(int $id): ?BookedRoom {
-        return $this->repository->findById($id);
-    }
-    public function findByPhone($phone)
-    {
-        return $this->repository->findByPhone($phone);
-    }
-
-    public function findAll(): array {
-        return $this->repository->findAll();
-    }
-
-    public function findByUserId(int $userId): array {
-        return $this->repository->findByUserId($userId);
-    }
-
-    public function save(BookedRoom $bookedRoom) {
-        // Ở đây bạn có thể thêm kiểm tra logic nghiệp vụ nếu cần
+    public function save(BookedRoom $bookedRoom ){
         $this->repository->save($bookedRoom);
     }
-
-    public function update(BookedRoom $bookedRoom): bool {
-        // Thêm validate nếu cần
-        return $this->repository->update($bookedRoom);
+    public function findByPhone($phone){
+        return $this->repository->findByPhone($phone);
     }
-
-    public function delete(int $id): bool {
-        // Có thể kiểm tra điều kiện trước khi xóa
-        return $this->repository->delete($id);
+    public function findById($id){
+        return $this->repository->findById($id);
+    }
+    public function getAllBookedRoom(){
+        return $this->repository->getAllBookedRoom();
+    }
+    public function deleteByPhone($phone){
+        $this->repository->deleteByPhone($phone);
+    }
+    public function deleteById($id){
+        $this->repository->deleteById($id);
+    }
+    public function updateBookedRoom($id, $newData){
+        $this->repository->updateBookedRoom($id, $newData);
+    }
+    public function findByUserId($userId){
+        return $this->repository->findByUserId($userId);
     }
 }
 ?>
