@@ -5,13 +5,13 @@
         public function __construct($conn) {
             $this->conn = $conn;
         }
-
         public function save(User $user){
             try {
+                $hashedPassword = password_hash($user->getPassword(), PASSWORD_DEFAULT);
                 $stmt = $this->conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
                 return $stmt->execute([
                     $user->getUsername(),
-                    $user->getPassword(),
+                    $hashedPassword,
                     $user->getRole()
                 ]);
             } catch (PDOException $e) {
@@ -19,6 +19,7 @@
                 return false;
             }
         }
+
         public function findById($id){
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE id = ?");
             $stmt->execute([$id]);
@@ -69,37 +70,43 @@
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = ?");
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($user && $password === $user['password']) {
-                return new User(
-                    $user['id'],
-                    $user['username'],
-                    $user['password'],
-                    $user['role']
-                );
-            } else {
-                return null;
+            if ($user) {
+                $storedPassword = $user['password'];
+                if (password_verify($password, $storedPassword)) {
+                    return new User($user['id'], $user['username'], $storedPassword, $user['role']);
                 }
+                if ($password === $storedPassword) {
+                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                    $updateStmt = $this->conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+                    $updateStmt->execute([$hashedPassword, $user['id']]);
+
+                    return new User($user['id'], $user['username'], $hashedPassword, $user['role']);
+                }
+            }
+
+            return null; 
         }
+
         public function register(User $user){
+            $hashedPassword = password_hash($user->getPassword(), PASSWORD_DEFAULT);
             $stmt = $this->conn->prepare("INSERT INTO users(username, password, role) VALUES (?, ?, ?)");
             return $stmt->execute([
                 $user->getUsername(),
-                $user->getPassword(),
+                $hashedPassword,
                 $user->getRole()
             ]);
         }
-
         public function changePassword($username, $password, $newPassword){
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = ?");
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if($user && password_verify($password, $user['password'])){
-                $stmt = $this->conn->prepare("UPDATE users SET password = ? where username = ?");
-                $stmt->execute([$newPassword, $username]);
+                $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE username = ?");
+                $stmt->execute([$hashedNewPassword, $username]);
                 return true;
             }
             return false;
-
         }
 
     }

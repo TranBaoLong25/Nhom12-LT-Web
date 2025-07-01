@@ -6,3 +6,4 @@
         case DormitoryRoom = 'DormitoryRoom';
         case Bungalow = 'Bungalow';
     }
+    

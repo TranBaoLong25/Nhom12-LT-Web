@@ -18,7 +18,13 @@ $conn = Database::getConnection();
 $bookedRoomService = new BookedRoomService(new BookedRoomRepository($conn));
 $homeStayService = new HomeStayService(new HomeStayRepository($conn));
 
-$rooms = $homeStayService->getAllHomeStay();
+$roomsPerPage = 9;
+$currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$allRooms = $homeStayService->getAllHomeStay();
+$totalRooms = count($allRooms);
+$totalPages = ceil($totalRooms / $roomsPerPage);
+$start = ($currentPage - 1) * $roomsPerPage;
+$rooms = array_slice($allRooms, $start, $roomsPerPage); 
 
 $booking_status = '';
 $booking_details = '';
@@ -130,6 +136,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button onclick="openBookingForm(`<?= addslashes($room->getRoomType()) ?>`, <?= $room->getRoomPrice() ?>, <?= $room->getId() ?>)">Đặt phòng</button>
         </div>
     <?php endforeach; ?>
+</div>
+<div class="pagination">
+    <?php if ($currentPage > 1): ?>
+        <a href="?page=<?= $currentPage - 1 ?>">&laquo; Trang trước</a>
+    <?php endif; ?>
+
+    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+        <?php if ($i === $currentPage): ?>
+            <strong><?= $i ?></strong>
+        <?php else: ?>
+            <a href="?page=<?= $i ?>"><?= $i ?></a>
+        <?php endif; ?>
+    <?php endfor; ?>
+
+    <?php if ($currentPage < $totalPages): ?>
+        <a href="?page=<?= $currentPage + 1 ?>">Trang sau &raquo;</a>
+    <?php endif; ?>
 </div>
 
 </div>

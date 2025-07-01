@@ -355,3 +355,28 @@ h1 {
     width: 100%;
   }
 }
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination a,
+.pagination strong {
+  display: inline-block;
+  margin: 0 5px;
+  padding: 8px 12px;
+  color: #000;
+  text-decoration: none;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.pagination a:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination strong {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}

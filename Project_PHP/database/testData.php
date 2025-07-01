@@ -3,8 +3,8 @@
 
 return [
     'host' => 'localhost',
-    'dbname' => 'homestay_db', // <-- THAY THẾ TÊN DATABASE CỦA BẠN
-    'user' => 'root',         // <-- THAY THẾ USERNAME CỦA BẠN
-    'password' => '',     // <-- THAY THẾ PASSWORD CỦA BẠN
+    'dbname' => 'homestay_db',
+    'user' => 'root',       
+    'password' => '',     
     'charset' => 'utf8mb4'
 ];
