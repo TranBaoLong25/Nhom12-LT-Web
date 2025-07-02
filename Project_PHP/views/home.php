@@ -93,4 +93,4 @@ require_once __DIR__ . '/fragments/header.php';
 </div> 
 
 <?php
-include_once('./fragments/footer.php');
+include_once(__DIR__ . '/fragments/footer.php');

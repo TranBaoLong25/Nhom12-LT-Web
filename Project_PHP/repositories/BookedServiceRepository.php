@@ -12,7 +12,7 @@ class BookedServiceRepository implements IBookedServiceRepository {
         $time = new DateTime($bookedService->getTime());
 
         if ($now > $time) {
-            throw new Exception("Ngày đặt dịch vụ phải sau hoặc là ngày hôm nay.");
+            throw new Exception("Ngày đặt dịch vụ phải sau ngày hôm nay.");
         }
         else{
         try {

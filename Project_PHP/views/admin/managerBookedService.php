@@ -2,10 +2,16 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { 
+    if ($_SESSION['user']['role'] === 'customer'){
+        header('Location: /views/home.php');
+        echo "Không dủ quyền hạn!";
+        exit;
+    }
+    else{
     header('Location: /views/login.php');
     exit;
+    }
 }
 require_once(__DIR__ . '/../../connection.php');
 require_once(__DIR__ . '/../../models/BookedService.php');
