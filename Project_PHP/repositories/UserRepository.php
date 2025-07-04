@@ -51,21 +51,29 @@
             return $users;
 
         }
-        public function updateUser($id, $newData){ 
+        public function updateUser($id, $newData) {
             $user = $this->findById($id);
-            if ($user) {
-                $username = $newData->getUsername();
-                $password = $newData->getPassword();
-                $role = $newData->getRole();
-                $stmt = $this->conn->prepare("UPDATE users SET username = ?, password = ?, role = ? WHERE id = ?");
-                $result = $stmt->execute([$username, $password, $role, $id]);
+            if (!$user) {
+                throw new Exception("User với ID này không tồn tại.");
+            }
+
+            $username = $newData->getUsername();
+            $inputPassword = $newData->getPassword();  
+            $role = $newData->getRole(); 
+            if (!empty($inputPassword)) {
+                $hashedPassword = password_hash($inputPassword, PASSWORD_DEFAULT);
+            } else { 
+                $hashedPassword = $user->getPassword();
+            }
+
+            $stmt = $this->conn->prepare("UPDATE users SET username = ?, password = ?, role = ? WHERE id = ?");
+            $result = $stmt->execute([$username, $hashedPassword, $role, $id]);
+
             if (!$result) {
                 throw new Exception("Lỗi khi cập nhật user.");
             }
-            } else {
-                throw new Exception("User với ID này không tồn tại.");
-            }
         }
+
         public function login($username, $password) {
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = ?");
             $stmt->execute([$username]);
