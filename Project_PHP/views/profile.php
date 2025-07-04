@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_service_id']))
         <div class="modal-content">
           <label for="toggleEdit" class="close-btn">&times;</label>
           <h3>Chỉnh sửa thông tin</h3>
-            <form action="" method="post">
+            <form action="/index.php?controller=account&action=changePassword" method="post">
               <label><strong>👤 Username:</strong></label>
               <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" readonly>
 
@@ -118,7 +118,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_service_id']))
                 <button type="submit" class="btn-edit">Lưu thay đổi</button>
               </div>
             </form>
-
+            <?php if (isset($_SESSION['change_password_success'])): ?>
+                <div class="success-message">
+                    <?= $_SESSION['change_password_success'] ?>
+                </div>
+                <?php unset($_SESSION['change_password_success']); ?>
+            <?php endif; ?>
+            <?php if (isset($_SESSION['change_password_error'])): ?>
+                <div class="error-message">
+                    <?= $_SESSION['change_password_error'] ?>
+                </div>
+                <?php unset($_SESSION['change_password_error']); ?>
+            <?php endif; ?>
         </div>
       </div>
 

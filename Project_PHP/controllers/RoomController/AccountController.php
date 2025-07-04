@@ -1,5 +1,6 @@
 <?php
 include_once('services/UserService.php'); 
+require_once(__DIR__ . '/../BaseController.php');
 
 class AccountController extends BaseController{
     private $conn;
@@ -123,21 +124,32 @@ class AccountController extends BaseController{
         $userSer = new UserService(new UserRepository($this->conn));
         return $userSer->getAllUsers();
     }
-    public function changePassword(){
-        if($_SERVER['REQUEST_METHOD'] === 'POST'){
-            $username = $_SESSION['user']['username'];
-            $password = $_POST['password'] ?? '';
-            $newPassword = $_POST['newPassword'] ?? '';
-            $confirmPassword = $_POST['confirmPassword'] ?? '';
-            if($newPassword !== $confirmPassword){
-                echo "Mat khau moi xac thuc khong hop le";
-                return;
-            }
-            $userSer = new UserService(new UserRepository($this->conn));
+    public function changePassword() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = $_SESSION['user']['username'];
+        $password = $_POST['password'] ?? '';
+        $newPassword = $_POST['newPassword'] ?? '';
+        $confirmPassword = $_POST['confirmPassword'] ?? '';
 
-            $success = $userSer->changePassword($username, $password, $newPassword);
-            echo $success?"Thanh cong":"that bai";
+        if ($newPassword !== $confirmPassword) {
+            $_SESSION['change_password_error'] = 'Mật khẩu xác nhận không khớp.';
+            header('Location: /views/profile.php');
+            exit;
         }
+
+        $userSer = new UserService(new UserRepository($this->conn));
+        $success = $userSer->changePassword($username, $password, $newPassword);
+
+        if ($success) {
+            $_SESSION['change_password_success'] = 'Đổi mật khẩu thành công!';
+        } else {
+            $_SESSION['change_password_error'] = 'Mật khẩu hiện tại không đúng.';
+        }
+
+        header('Location: /views/profile.php');  
+        exit;
     }
+}
+
 }
 ?>
